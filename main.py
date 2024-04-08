@@ -5,15 +5,13 @@ Here's our first attempt at using data to create a table:
 
 import streamlit as st
 import pandas as pd
-df = pd.DataFrame({
-  'first column': [1, 2, 3, 4],
-  'second column': [10, 20, 30, 40]
-})
+df = pd.read_csv("primer_dataset/Train.csv")
 
 st.write(f"""
 # TFM
 Bienvenidos a nuestro pedazo de TFM
-Aquí tenéis nuestro dataframe      
+
+Aquí tenemos las 5 primeras filas de nuestro conjunto de datos.    
 """)
 
-df
+st.write(df)
