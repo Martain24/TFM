@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from sqlalchemy.sql.sqltypes import TIMESTAMP
+from sqlalchemy.sql.sqltypes import TIMESTAMP, JSON
 from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -24,15 +24,15 @@ class Articles(Base):
     model_filename = Column(String, nullable=False, unique=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
 
-    
+
 # Definición de la clase para la tabla 'predictions'
 class Predictions(Base):
     __tablename__ = "predictions"
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     article_id = Column(Integer, ForeignKey("articles.id", ondelete="CASCADE"), nullable=False)
-    prediction_input = Column(String, nullable=False)
-    prediction_output = Column(String, nullable=False)
+    prediction_input = Column(JSON, nullable=False)
+    prediction_output = Column(JSON, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
 
     # Relacionamos con Users y Articles para obtener info más completa al hacer la query

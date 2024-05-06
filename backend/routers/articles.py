@@ -1,4 +1,4 @@
-from .. import models, schemas, database, utils
+from .. import models, schemas, database, utils, ml_models
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -20,13 +20,12 @@ def create_article(article:schemas.Article, db:Session = Depends(database.get_db
     if current_user.is_vip == False:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Only vip users can create articles.")
-    try:
-        model = joblib.load(f"/Users/martin_ramiro/Desktop/TFM-1/backend/{article.model_filename}")
-    except:
+    if not ml_models.try_model(f"{article.model_filename}"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Not found model with the filename provided")
+                            detail="The filename provided does not exists or does not contain any model")
+
     new_article = models.Articles(**article.model_dump())
     db.add(new_article)
     db.commit()
-    db.refresh(new_article) 
+    db.refresh(new_article)
     return new_article

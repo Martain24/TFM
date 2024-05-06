@@ -1,8 +1,8 @@
-from .. import models, schemas, database, utils, schemas_models
+from .. import models, schemas, database, utils, schemas_models, ml_models
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 import pandas as pd
-import joblib
+from typing import List
 
 router = APIRouter(
     prefix="/predictions",  # Ruta base para este enrutador
@@ -13,30 +13,30 @@ router = APIRouter(
 @router.post("/logistic_test_model", response_model=schemas.PredictionOutput)
 def obtain_prediction(input:schemas_models.LogisticTest, current_user=Depends(utils.get_current_user),
                       db:Session = Depends(database.get_db)):
-    model = joblib.load("/Users/martin_ramiro/Desktop/TFM-1/backend/logistic_test_model.sav")
+    model = ml_models.logistic_reg_test_model
     model_input = {key: 0 for key in model.feature_names_in_}
-    model_input["Age"] = input.age 
+    model_input["Age"] = input.age
     model_input["Work_Experience"] = input.work_experience
 
     if input.gender.lower() == "male":
-        model_input[f"Gender_Male"] = True 
-        model_input[f"Gender_Female"] = False 
+        model_input[f"Gender_Male"] = True
+        model_input[f"Gender_Female"] = False
     else:
-        model_input[f"Gender_Male"] = False 
-        model_input[f"Gender_Female"] = True 
+        model_input[f"Gender_Male"] = False
+        model_input[f"Gender_Female"] = True
 
     if input.graduated.lower() == "no":
-        model_input[f"Graduated_No"] = True 
-        model_input[f"Graduated_Yes"] = False 
+        model_input[f"Graduated_No"] = True
+        model_input[f"Graduated_Yes"] = False
     else:
-        model_input[f"Graduated_No"] = False 
-        model_input[f"Graduated_Yes"] = True 
+        model_input[f"Graduated_No"] = False
+        model_input[f"Graduated_Yes"] = True
 
     if input.ever_married.lower() == "no":
-        model_input[f"Ever_Married_No"] = True 
-        model_input[f"Ever_Married_Yes"] = False 
+        model_input[f"Ever_Married_No"] = True
+        model_input[f"Ever_Married_Yes"] = False
     else:
-        model_input[f"Ever_Married_No"] = False 
+        model_input[f"Ever_Married_No"] = False
         model_input[f"Ever_Married_Yes"] = True
 
 
@@ -58,8 +58,8 @@ def obtain_prediction(input:schemas_models.LogisticTest, current_user=Depends(ut
     prediction_output = {
         "user_id": user_id,
         "article_id": article_id,
-        "prediction_input": str(model_input),
-        "prediction_output": str(prediction)
+        "prediction_input": model_input,
+        "prediction_output": {"predicted_salary": str(prediction)}
     }
     new_prediction = models.Predictions(**prediction_output)
     db.add(new_prediction)
@@ -67,3 +67,9 @@ def obtain_prediction(input:schemas_models.LogisticTest, current_user=Depends(ut
     db.refresh(new_prediction)
     return new_prediction
 
+
+@router.get("/", response_model=List[schemas.PredictionOutput])
+def obtain_user_predictions(current_user=Depends(utils.get_current_user),
+                            db:Session = Depends(database.get_db)):
+    user_predictions = db.query(models.Predictions).filter(models.Predictions.user_id == current_user.id).all()
+    return user_predictions

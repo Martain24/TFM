@@ -31,8 +31,8 @@ class PredictionInput(BaseModel):
 class PredictionOutput(BaseModel):
     user: UserOutput      # Información del usuario asociado a la predicción
     article: Article      # Información del artículo asociado a la predicción
-    prediction_input: str
-    prediction_output: str
+    prediction_input: dict
+    prediction_output: dict
 
     class Config:
         from_attributes = True
@@ -41,10 +41,11 @@ class PredictionOutput(BaseModel):
 class CommentInput(BaseModel):
     content: str          # Contenido del comentario
     article_id: int
-    
+
 
 # Definición de la clase Pydantic para la salida de comentarios
 class CommentOutput(BaseModel):
+    id: int
     user: UserOutput      # Información del usuario que realizó el comentario
     content: str          # Contenido del comentario
     article: Article      # Información del artículo al que pertenece el comentario
@@ -56,15 +57,7 @@ class CommentOutput(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    token_type: str 
+    token_type: str
 
 class TokenData(BaseModel):
     user_id: int
-
-
-
-
-
-
-
-    
