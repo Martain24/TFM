@@ -20,7 +20,7 @@ def create_article(article:schemas.Article, db:Session = Depends(database.get_db
     if current_user.is_vip == False:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Only vip users can create articles.")
-    if not ml_models.try_model(f"{article.model_filename}"):
+    if not ml_models.try_model(f"{article.filename_of_model}"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="The filename provided does not exists or does not contain any model")
 

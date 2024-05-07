@@ -2,8 +2,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import sessionmaker 
 import os
+from dotenv import dotenv_values
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:contraseña123@localhost/fastapi_db"
+settings = dotenv_values(".env")
+
+SQLALCHEMY_DATABASE_URL = settings["DATABASE_URL"]
 
 # Crea el engine de la base de datos para que pueda ser usada por SQLalchemy
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

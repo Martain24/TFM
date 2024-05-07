@@ -6,6 +6,9 @@ from . import schemas, database, models
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from dotenv import dotenv_values 
+
+settings = dotenv_values(".env")
 
 # Contexto de cifrado para contraseñas
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -22,13 +25,13 @@ def verify(plain_user_password: str, hashed_password: str):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Clave secreta para firmar tokens de acceso
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = settings["SECRET_KEY"]
 
 # Algoritmo de cifrado utilizado para firmar tokens de acceso
-ALGORITHM = "HS256"
+ALGORITHM = settings["ALGORITHM"]
 
 # Duración de los tokens de acceso (en minutos)
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = int(settings["ACCESS_TOKEN_EXPIRE_MINUTES"])
 
 # Función para crear un token de acceso
 def create_access_token(data_of_user_to_create_access_token: dict):

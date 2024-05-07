@@ -12,6 +12,11 @@ router = APIRouter(
 # Ruta para crear un usuario
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOutput)
 def create_user(user: schemas.UserInput, db: Session = Depends(database.get_db)):
+    email = db.query(models.Users).filter(models.Users.email == user.email).first()
+    if email!=None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="This email is already registered.")
+
     # Hashing de la contraseña del usuario antes de guardarla en la base de datos
     hashed_password = utils.hash(user.password)
     user.password = hashed_password

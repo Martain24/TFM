@@ -50,10 +50,10 @@ def obtain_prediction(input:schemas_models.LogisticTest, current_user=Depends(ut
     prediction = model.predict(df_input)[0]
 
     user_id = current_user.id
-    article = db.query(models.Articles).filter(models.Articles.model_filename == "logistic_test_model.sav").first()
+    article = db.query(models.Articles).filter(models.Articles.filename_of_model == "logistic_test_model.sav").first()
     if article == None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="You must create an article of the model before the predictions")
+                            detail="You must create an article of the model before making any predictions")
     article_id = article.id
     prediction_output = {
         "user_id": user_id,

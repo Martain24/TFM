@@ -20,11 +20,11 @@ class UserOutput(BaseModel):
 class Article(BaseModel):
     title: str              # Título del artículo
     short_description: str  # Breve descripción del artículo
-    model_filename: str
+    filename_of_model: str
 
 # Definición de la clase Pydantic para la entrada de predicciones
 class PredictionInput(BaseModel):
-    model_filename: str       # Identificador único del artículo
+    filename_of_model: str       # Identificador único del artículo
     prediction_input: dict
 
 # Definición de la clase Pydantic para la salida de predicciones
