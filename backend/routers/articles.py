@@ -17,6 +17,11 @@ def get_articles(db:Session = Depends(database.get_db), current_user=Depends(uti
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Article)
 def create_article(article:schemas.Article, db:Session = Depends(database.get_db),
                    current_user=Depends(utils.get_current_user)):
+    filename = db.query(models.Articles).filter(models.Articles.filename_of_model == article.filename_of_model).first()
+    if filename != None:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                            detail="The filename of the model is already in use.")
+
     if current_user.is_vip == False:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Only vip users can create articles.")
