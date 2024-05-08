@@ -67,3 +67,14 @@ def login(user_credentials:schemas.UserInput, db: Session = Depends(database.get
     # Retornando el token de acceso
     return {"access_token": access_token, "token_type": "bearer"}
 
+@router.delete("/{id}", response_model=schemas.UserOutput)
+def delete_user(id: int, db: Session = Depends(database.get_db), current_user=Depends(utils.get_current_user)):
+    
+    user_to_delete = db.query(models.Users).filter(models.Users.id == id).first()
+
+    # Eliminar el usuario de la base de datos
+    db.delete(user_to_delete)
+    db.commit()
+
+    # Devolver el usuario eliminado en la respuesta
+    return user_to_delete
