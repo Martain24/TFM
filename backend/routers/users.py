@@ -69,12 +69,22 @@ def login(user_credentials:schemas.UserInput, db: Session = Depends(database.get
 
 @router.delete("/{id}", response_model=schemas.UserOutput)
 def delete_user(id: int, db: Session = Depends(database.get_db), current_user=Depends(utils.get_current_user)):
+    if current_user.is_vip:
+        # Los vip puedan eliminar a cualquier usuario
+        user_to_delete = db.query(models.Users).filter(models.Users.id == id).first()
+        if user_to_delete is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"User with ID {id} does not exist.")
+        
+        db.delete(user_to_delete)
+        db.commit()
+        return user_to_delete
+
+    # Los NO VIP solo pueden eliminarse así mismos
+    if current_user.id != id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Only VIP users can deleate other users.")
     
-    user_to_delete = db.query(models.Users).filter(models.Users.id == id).first()
-
-    # Eliminar el usuario de la base de datos
-    db.delete(user_to_delete)
+    db.delete(current_user)
     db.commit()
-
-    # Devolver el usuario eliminado en la respuesta
-    return user_to_delete
+    return current_user
