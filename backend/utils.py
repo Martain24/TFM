@@ -7,6 +7,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from dotenv import dotenv_values 
+import smtplib
+from email.mime.text import MIMEText
 
 settings = dotenv_values(".env")
 
@@ -63,3 +65,12 @@ def get_current_user(token:str = Depends(oauth2_scheme), db: Session = Depends(d
     user = db.query(models.Users).filter(models.Users.id == token.user_id).first()
     return user
 
+
+def send_email(subject, body, sender, recipients, password):
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(recipients)
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+       smtp_server.login(sender, password)
+       smtp_server.sendmail(sender, recipients, msg.as_string())

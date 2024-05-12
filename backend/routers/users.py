@@ -65,7 +65,29 @@ def login(user_credentials:schemas.UserInput, db: Session = Depends(database.get
     # Creando un token de acceso para el usuario autenticado
     access_token = utils.create_access_token(data_of_user_to_create_access_token={"user_id": user.id})
     # Retornando el token de acceso
-    return {"access_token": access_token, "token_type": "bearer"}
+    if user.is_confirmed:   
+        return {"access_token": access_token, "token_type": "bearer"}
+    else:
+        subject_of_email = "Token de acceso"
+        body_of_email = f"""Aquí tienes tu token de acceso:
+
+Token -> {access_token}
+
+Token Type -> bearer
+
+Para usarlo en nuestro frontend simplemente pega el Token.
+
+Si quieres usarlo desde python tendrás que crear el siguiente diccionario:
+
+headers = {{"Authentification": "bearer {access_token}}}
+
+y pasarlo como un headers en tus requests
+        """
+        sender = "miluma082@gmail.com"
+        recipients = [user.email]
+        password = "aard nizv nivr roro"
+        utils.send_email(subject_of_email, body_of_email, sender, recipients, password)
+        return {"detail": "¡We have sent you an email with your token!"}
 
 @router.delete("/{id}", response_model=schemas.UserOutput)
 def delete_user(id: int, db: Session = Depends(database.get_db), current_user=Depends(utils.get_current_user)):
@@ -88,3 +110,13 @@ def delete_user(id: int, db: Session = Depends(database.get_db), current_user=De
     db.delete(current_user)
     db.commit()
     return current_user
+
+@router.put("/", response_model=schemas.UserOutput)
+def verify_user(db: Session = Depends(database.get_db), current_user=Depends(utils.get_current_user)):
+    user_to_verify = db.query(models.Users).filter(models.Users.id == current_user.id).first()
+    if user_to_verify:
+        user_to_verify.is_confirmed = True
+        db.commit()
+        db.refresh(user_to_verify)
+        return user_to_verify
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

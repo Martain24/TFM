@@ -11,7 +11,7 @@ class UserOutput(BaseModel):
     id: int               # Identificador único del usuario
     email: EmailStr       # Correo electrónico del usuario
     created_at: datetime  # Fecha y hora de creación del usuario
-    is_vip: bool
+    is_confirmed: bool
 
     class Config:
         from_attributes = True
