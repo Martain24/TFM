@@ -30,9 +30,22 @@ def create_comment(new_comment:schemas.CommentInput, db:Session = Depends(databa
     db.refresh(new_comment)
     return new_comment
 
+
 @router.delete("/")
-def delete_comment(id_comment:int, db:Session = Depends(database.get_db),
+def delete_comment(id_comment: int, db: Session = Depends(database.get_db),
                    current_user=Depends(utils.get_current_user)):
+    #USUARIOS VIP PUEDEN ELIMINAR CUALQUIER COMENTARIO
+    if current_user.is_vip:
+        comment_to_delete = db.query(models.Comments).filter(models.Comments.id == id_comment).first()
+        if comment_to_delete is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"There does not exist a comment with ID {id_comment}.")
+        
+        db.delete(comment_to_delete)
+        db.commit()
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    
+    #LOS USUARIOS NO VIP SOLO PUEDEN ELIMINAR SUS PROPIOS COMENTARIOS
     comment_to_delete = db.query(models.Comments).filter(models.Comments.id == id_comment)
     if comment_to_delete.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
