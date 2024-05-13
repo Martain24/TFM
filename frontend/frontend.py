@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
+from Proyectos import customer_segmentation
 
 # URL de la API backend
 URL_BACKEND = "http://127.0.0.1:8000/"
@@ -80,8 +81,6 @@ Después vuelve a iniciar sesión... ¡y a disfrutar de la página web!""")
             st.warning("Ha habido un error inesperado")
 
 
-
-
 def informacion_del_usuario():
     if "token" not in st.session_state.keys():
         st.warning("Tienes que iniciar sesión para poder ver esta página")
@@ -109,11 +108,13 @@ def informacion_del_usuario():
                 preds_of_model.append(pred_of_model)
         df_of_preds = pd.DataFrame(preds_of_model)
         st.dataframe(df_of_preds)
+
+
 # Función para la página de artículos
 def pagina_proyectos():
     
     # Lista para almacenar los títulos de los artículos
-    titulos_articulos = ["Regresión logística para hacer pruebas", "Artículo 2"]
+    titulos_articulos = ["Regresión logística para hacer pruebas", "Customer Segmentation"]
 
     # Selectbox con los títulos de los artículos
     opcion = st.selectbox("Selecciona un artículo", titulos_articulos)
@@ -151,8 +152,12 @@ Escoge los parámetros de entrada:
                     headers = {"Authorization": st.session_state.token}
                     response = requests.post(url=f"{URL_BACKEND}predictions/logistic_test_model", json=input_data, headers=headers)
                     st.success(f"Se espera que el salario del individuo sea: {response.json()['prediction_output']['predicted_salary']}")
-    elif opcion == "Artículo 2":
-        st.write("Texto del artículo 2: Adiós")
+    elif opcion == "Customer Segmentation":
+        indice = st.radio("¿Qué quieres ver aquí?", options=["Descripción del proyecto", "Exploratory Data Analysis"])
+        if indice == "Descripción del proyecto":
+            customer_segmentation.descripcion_del_proyecto()
+        elif indice=="Exploratory Data Analysis":
+            customer_segmentation.exploratory_data_analysis()
 
 
 # Barra lateral con opciones de navegación
