@@ -105,7 +105,7 @@ que incluye la creación de un boxplot y un histograma para entender su distribu
 Se identificaron valores atípicos en la variable de edad, los cuales podrían ser resultado de errores o datos inusuales.
 </div>
 """, unsafe_allow_html=True)
-    df = pd.read_csv("../primer_dataset/marketing_con_ouliers.csv")
+    
 
       
     def mostrar_boxplot(variable):
@@ -119,7 +119,7 @@ Se identificaron valores atípicos en la variable de edad, los cuales podrían s
 
     def mostrar_histograma(variable):
         fig, ax = plt.subplots()
-        plt.hist(df[variable], bins=10, color='skyblue', edgecolor='black')  # Accedemos a la columna en df
+        plt.hist(df[variable], bins=10, color='skyblue', edgecolor='black') 
         ax.set_title(f'Histograma de {variable}')
         ax.set_xlabel(variable)
         ax.set_ylabel('Frecuencia')
