@@ -45,7 +45,7 @@ def get_user(id: int, db: Session = Depends(database.get_db)):
     # Retornando el usuario obtenido
     return user_to_get
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("/login")
 def login(user_credentials:schemas.UserInput, db: Session = Depends(database.get_db)):
     # Consultando el usuario en la base de datos por su email
     user = db.query(models.Users).filter(models.Users.email == user_credentials.email).first()
