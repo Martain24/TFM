@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from scipy.stats import zscore
 import seaborn as sns
+sns.set_style("whitegrid")
 
 def descripcion_del_proyecto():
     st.markdown("""
@@ -105,32 +106,66 @@ que incluye la creación de un boxplot y un histograma para entender su distribu
 Se identificaron valores atípicos en la variable de edad, los cuales podrían ser resultado de errores o datos inusuales.
 </div>
 """, unsafe_allow_html=True)
-    
 
-      
-    def mostrar_boxplot(variable):
-        fig, ax = plt.subplots()
-        plt.boxplot(df[variable])  
-        ax.set_title(f'Boxplot de {variable}')
-        ax.set_xlabel(variable)
+    # Función para aplicar el método de Tukey y eliminar outliers
+    def apply_tuckey(numeric_col: pd.Series, tukey_factor: float = 1.5):
+        # Calcular los cuartiles Q1 y Q3
+        q1, q3 = numeric_col.describe()["25%"], numeric_col.describe()["75%"]
+        # Calcular el rango intercuartílico (IQR)
+        iqr = q3 - q1
+        # Calcular los límites superior e inferior según el factor de Tukey
+        ceiling, floor = q3 + tukey_factor * iqr, q1 - tukey_factor * iqr 
+        # Devolver solo los valores que están dentro de los límites
+        return numeric_col[(floor <= numeric_col) & (numeric_col <= ceiling)]
+
+    # Función para mostrar un boxplot de una columna numérica
+    def mostrar_boxplot(numeric_col: pd.Series, ax):
+        sns.boxplot(numeric_col, ax=ax, color="skyblue")  
+        ax.set_title(f'Boxplot de {numeric_col.name}')
+        ax.set_xlabel(numeric_col.name)
         ax.set_ylabel('Frecuencia')
-        st.pyplot(fig)
 
-
-    def mostrar_histograma(variable):
-        fig, ax = plt.subplots()
-        plt.hist(df[variable], bins=10, color='skyblue', edgecolor='black') 
-        ax.set_title(f'Histograma de {variable}')
-        ax.set_xlabel(variable)
+    # Función para mostrar un histograma de una columna numérica con líneas para los cuartiles
+    def mostrar_histograma(numeric_col: pd.Series, ax):
+        # Obtener los cuartiles Q1, Q2 (mediana) y Q3
+        q1, q2, q3 = numeric_col.describe()["25%"], numeric_col.describe()["50%"], numeric_col.describe()["75%"]
+        # Dibujar el histograma
+        sns.histplot(numeric_col, bins=10, color='skyblue', edgecolor='black', ax=ax) 
+        # Añadir líneas verticales para los cuartiles
+        ax.axvline(q1, c="red", ls="--", label=f"Q1 = {q1:.2f}")
+        ax.axvline(q2, c="green", ls="--", label=f"Q2 = {q2:.2f}")
+        ax.axvline(q3, c="black", ls="--", label=f"Q3 = {q3:.2f}")
+        ax.set_title(f'Histograma de {numeric_col.name}')
+        ax.set_xlabel(numeric_col.name)
         ax.set_ylabel('Frecuencia')
-        st.pyplot(fig)
+        ax.legend()
+
+    # Crear una figura con dos subplots (boxplot e histograma)
+    fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(7, 4), dpi=200)
+
+    # Solicitar al usuario que elija el factor de Tukey mediante un slider
+    tukey_factor = st.slider(label="Escoge factor de Tukey (más elevado implica eliminar menos outliers)",
+                            max_value=5., min_value=0.2, step=0.1, value=1.5)
+
+    # Aplicar el método de Tukey para eliminar outliers en la columna "Age"
+    age_without_outliers = apply_tuckey(numeric_col=df["Age"], tukey_factor=tukey_factor)
+
+    # Mostrar el boxplot de la columna "Age" sin outliers en el primer subplot
+    mostrar_boxplot(age_without_outliers, ax=axes[0])
+
+    # Mostrar el histograma de la columna "Age" sin outliers en el segundo subplot
+    mostrar_histograma(age_without_outliers, ax=axes[1])
+
+    # Ajustar el diseño de la figura y mostrarla en Streamlit
+    fig.tight_layout()
+    st.pyplot(fig)
 
 #Cambiamos entre gráficos con este botón
-    if st.button('Mostrar boxplot de Edad'):
-        mostrar_boxplot("Age")
+    # if st.button('Mostrar boxplot de Edad'):
+    #     mostrar_boxplot("Age")
 
-    if st.button('Mostrar histograma de Edad'):
-        mostrar_histograma("Age")
+    # if st.button('Mostrar histograma de Edad'):
+    #     mostrar_histograma("Age")
 
     st.markdown("""
 <div style="text-align: justify;">
