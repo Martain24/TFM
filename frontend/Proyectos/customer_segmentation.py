@@ -245,3 +245,22 @@ Además, este gráfico ofrece la opción de visualizar los datos segmentados por
     plt.legend(title='Education', bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
     st.pyplot(fig)
+
+    st.markdown("""
+<div style="text-align: justify;">
+                              
+Podemos observar que la distribución es consistente en cada grupo de edad, con una excepción notoria en el grupo más joven, donde tenemos una cantidad limitada de observaciones.
+ </div>
+""", unsafe_allow_html=True)
+    
+    st.markdown("""
+<div style="text-align: justify;">
+
+### Tipos de marital status de nuestros clientes.
+                              
+El recuento de la variable 'marital status' revela que la mayoría de los individuos en nuestra muestra están casados (857),
+seguidos por aquellos que están en pareja pero no casados (572) y los solteros (470). Además, se observa una cantidad significativa de individuos divorciados (231).
+Sin embargo, hay categorías menos frecuentes, como viudos (76), personas que viven solas (Alone, 3), casos clasificados como 'Absurd' (2) y 'YOLO' (2).
+Se ha decidido eliminar las categorías con recuentos menores a 5 por considerarse poco representativas.
+ </div>
+""", unsafe_allow_html=True)
