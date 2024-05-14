@@ -1,5 +1,6 @@
 import streamlit as st 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def descripcion_del_proyecto():
     st.markdown("""
@@ -84,4 +85,71 @@ Para eliminarlos simplemente ejecutamos la siguiente línea de código
 # Eliminar valores nulos y resetear el index
 df = df.dropna().reset_index(drop=True)
 """)
+   
+    st.markdown("""
+<div style="text-align: justify;">
+                
+### Distribución y preprocesado de la edad de los individuos.
+Tras realizar un análisis exploratorio de la variable 'age', 
+que incluye la creación de un boxplot y un histograma para entender su distribución y posibles valores atípicos.
+Se identificaron valores atípicos en la variable de edad, los cuales podrían ser resultado de errores o datos inusuales.
+</div>
+""", unsafe_allow_html=True)
+    df = pd.read_csv("../primer_dataset/marketing_con_ouliers.csv")
+
+      
+    def mostrar_boxplot(variable):
+        fig, ax = plt.subplots()
+        plt.boxplot(df[variable])  
+        ax.set_title(f'Boxplot de {variable}')
+        ax.set_xlabel(variable)
+        ax.set_ylabel('Frecuencia')
+        st.pyplot(fig)
+
+
+    def mostrar_histograma(variable):
+        fig, ax = plt.subplots()
+        plt.hist(df[variable], bins=10, color='skyblue', edgecolor='black')  # Accedemos a la columna en df
+        ax.set_title(f'Histograma de {variable}')
+        ax.set_xlabel(variable)
+        ax.set_ylabel('Frecuencia')
+        st.pyplot(fig)
+
+#Cambiamos entre gráficos con este botón
+    if st.button('Mostrar boxplot'):
+        mostrar_boxplot("Age")
+
+    if st.button('Mostrar histograma'):
+        mostrar_histograma("Age")
+
+    st.markdown("""
+<div style="text-align: justify;">
+                
+Para abordar esta situación, a continuación se muestra el código utilizado para aplicar el método z-score con el fin de detectar y tratar estos outliers:
+ </div>
+""", unsafe_allow_html=True)
     
+    st.code("""
+                
+# Calcula el z-score de la edad
+age_zscore = zscore(df['Age'])
+
+# Filtra los valores atípicos basados en el z-score
+threshold = 3
+df = df[(age_zscore < threshold) & (age_zscore > -threshold)]""")
+    
+    st.markdown("""
+<div style="text-align: justify;">
+                
+Tras la eliminación de valores atípicos, observamos que la distribución de la edad se concentra principalmente alrededor de los 50 años,
+siendo este el valor más común en nuestra base de datos. La edad promedio es de aproximadamente 55 años, con un valor mínimo de 28 y un máximo de 84.
+ </div>
+""", unsafe_allow_html=True)
+    st.dataframe(pd.DataFrame(df['Age'].describe()))
+    df = pd.read_csv("../primer_dataset/dataset_marketing_limmpio.csv")
+    #Cambiamos entre gráficos con este botón
+    if st.button('Mostrar boxplot'):
+        mostrar_boxplot("Age")
+
+    if st.button('Mostrar histograma'):
+        mostrar_histograma("Age")
