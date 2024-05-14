@@ -1,6 +1,9 @@
 import streamlit as st 
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import datetime
+from scipy.stats import zscore
+import seaborn as sns
 
 def descripcion_del_proyecto():
     st.markdown("""
@@ -85,7 +88,14 @@ Para eliminarlos simplemente ejecutamos la siguiente línea de código
 # Eliminar valores nulos y resetear el index
 df = df.dropna().reset_index(drop=True)
 """)
-   
+# Solo hay 24 valores nulos en Income así que los eliminamos 
+    df = df.dropna().reset_index(drop=True)
+# Creamos una columna de edad que es mejor que Year Birth
+    df["Age"] = df["Year_Birth"].apply(lambda x : datetime.now().year - x)
+    
+    
+    
+    #EDAD
     st.markdown("""
 <div style="text-align: justify;">
                 
@@ -116,10 +126,10 @@ Se identificaron valores atípicos en la variable de edad, los cuales podrían s
         st.pyplot(fig)
 
 #Cambiamos entre gráficos con este botón
-    if st.button('Mostrar boxplot'):
+    if st.button('Mostrar boxplot de Edad'):
         mostrar_boxplot("Age")
 
-    if st.button('Mostrar histograma'):
+    if st.button('Mostrar histograma de Edad'):
         mostrar_histograma("Age")
 
     st.markdown("""
@@ -137,7 +147,12 @@ age_zscore = zscore(df['Age'])
 # Filtra los valores atípicos basados en el z-score
 threshold = 3
 df = df[(age_zscore < threshold) & (age_zscore > -threshold)]""")
-    
+# Calcula el z-score de la edad
+    age_zscore = zscore(df['Age'])
+
+# Filtra los valores atípicos basados en el z-score
+    threshold = 3
+    df = df[(age_zscore < threshold) & (age_zscore > - threshold)]
     st.markdown("""
 <div style="text-align: justify;">
                 
@@ -146,10 +161,87 @@ siendo este el valor más común en nuestra base de datos. La edad promedio es d
  </div>
 """, unsafe_allow_html=True)
     st.dataframe(pd.DataFrame(df['Age'].describe()))
-    df = pd.read_csv("../primer_dataset/dataset_marketing_limmpio.csv")
-    #Cambiamos entre gráficos con este botón
-    if st.button('Mostrar boxplot'):
+    if st.button('Mostrar boxplot de Edad 2'):
         mostrar_boxplot("Age")
 
-    if st.button('Mostrar histograma'):
+    if st.button('Mostrar histograma de Edad 2'):
         mostrar_histograma("Age")
+
+    st.markdown("""
+<div style="text-align: justify;">
+                
+Con el propósito de categorizar a nuestros individuos en distintos grupos de edad, hemos introducido la variable 'Age group', la cual divide a nuestros individuos en 5 grupos. Para lograr esto, se ha utilizado el siguiente código:
+ </div>
+""", unsafe_allow_html=True)
+    st.code("""
+            age_groups = []
+
+# Iteramos sobre las edades y alas asignamos a la lista según su condición
+for age in df['Age']:
+    if age <= 18:
+        age_groups.append('0-18')
+    elif age <= 30:
+        age_groups.append('19-30')
+    elif age <= 50:
+        age_groups.append('31-50')
+    elif age <= 70:
+        age_groups.append('51-70')
+    else:
+        age_groups.append('71+')
+
+# Creamos nuestra nueva variable a partir de la lista anterior
+df['Age_Group'] = age_groups
+""")
+    age_groups = []
+
+# Iteramos sobre las edades y alas asignamos a la lista según su condición
+    for age in df['Age']:
+        if age <= 18:
+            age_groups.append('0-18')
+        elif age <= 30:
+            age_groups.append('19-30')
+        elif age <= 50:
+            age_groups.append('31-50')
+        elif age <= 70:
+            age_groups.append('51-70')
+        else:
+            age_groups.append('71+')
+
+# Creamos nuestra nueva variable a partir de la lista anterior
+    df['Age_Group'] = age_groups
+    
+    st.markdown("""
+<div style="text-align: justify;">
+
+### Analisis de la variable Educación y su realción con la edad.
+                              
+En el gráfico siguiente, se destaca que el nivel de educación más común entre los individuos de nuestra muestra es el de graduado, 
+abarcando más de la mitad de la población estudiada, seguido por doctorados y máster, y en menor medida, los de 2º ciclo y nuestra categoría minoritaria, Basic.
+Además, este gráfico ofrece la opción de visualizar los datos segmentados por grupos de edad, facilitando un análisis más detallado mediante un botón interactivo integrado en la visualización.
+ </div>
+""", unsafe_allow_html=True)
+    
+    #Countplot de Educación
+    def mostrar_countplot(variable):
+        fig, ax = plt.subplots()
+        sns.countplot(data=df, x=variable, ax=ax)
+        ax.set_xlabel(variable)
+        ax.set_ylabel('Count')
+        ax.set_title(f'Countplot de {variable}')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        return fig, ax
+
+    fig, ax = mostrar_countplot('Education')
+    st.pyplot(fig)
+    
+    # Countplot de Educación por grupos de edad
+    fig, ax = plt.subplots()
+    sns.countplot(data=df, x='Age_Group', hue='Education', ax=ax)
+    ax.set_xlabel('Age Group')
+    ax.set_ylabel('Count')
+    ax.set_title('Countplot de Age Group y Education')
+    plt.xticks(rotation=45)
+    plt.legend(title='Education', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    st.pyplot(fig)
