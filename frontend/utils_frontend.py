@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt 
-import seaborn as sns 
+import seaborn as sns
+import streamlit as st
 sns.set_style("whitegrid")
 
 
@@ -40,3 +41,22 @@ def mostrar_countplot(df, variable, ax):
     ax.set_xlabel(variable)
     ax.set_ylabel('Count')
     ax.set_title(f'Countplot de {variable}')
+
+def contar_valores_por_grupo(df, variable_grupo, variable_contar):
+    choose_grupo = st.selectbox("Escoge un grupo", options=df[variable_grupo].unique())
+    df_filtrado = df[df[variable_grupo] == choose_grupo]
+    count_df = pd.DataFrame()
+    count_df.index = df_filtrado[variable_contar].value_counts().index 
+    count_df[f"Conteo de {variable_contar} en grupo {choose_grupo}"] = df_filtrado[variable_contar].value_counts().values 
+    count_df[f"En porcentajes"] = df_filtrado[variable_contar].value_counts(normalize=True).values * 100
+    st.dataframe(count_df)
+
+def calcular_conteo_y_porcentaje(df, columna):
+    
+    conteo = df[columna].value_counts()
+    porcentaje = (conteo / len(df)) * 100
+    porcentaje = porcentaje.round(1)
+    porcentaje_str = porcentaje.astype(str) + '%'
+    resultado = pd.DataFrame({'Conteo': conteo, 'Porcentaje': porcentaje_str})
+    st.dataframe(resultado)
+    

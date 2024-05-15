@@ -212,20 +212,20 @@ df['Age_Group'] = df["Age"].apply(category_age)
     age_groups = []
 
 # Iteramos sobre las edades y alas asignamos a la lista según su condición
-    for age in df['Age']:
+    def category_age(age):
         if age <= 18:
-            age_groups.append('0-18')
+            return '0-18'
         elif age <= 30:
-            age_groups.append('19-30')
+            return '19-30'
         elif age <= 50:
-            age_groups.append('31-50')
+            return '31-50'
         elif age <= 70:
-            age_groups.append('51-70')
+            return '51-70'
         else:
-            age_groups.append('71+')
+            return '71+'
 
 # Creamos nuestra nueva variable a partir de la lista anterior
-    df['Age_Group'] = age_groups
+    df['Age_Group'] = df['Age'].apply(category_age)
 
     fig,ax = plt.subplots()
     utils_frontend.mostrar_countplot(df, "Age_Group", ax)
@@ -259,14 +259,8 @@ Además, este gráfico ofrece la opción de visualizar los datos segmentados por
     plt.tight_layout()
     st.pyplot(fig)
 
-    choose_age_group = st.selectbox("Escoge un grupo de edad",
-                                    options=df["Age_Group"].unique())
-    df_filter = df[df["Age_Group"] == choose_age_group]
-    count_df = pd.DataFrame()
-    count_df.index = df_filter["Education"].value_counts().index 
-    count_df[f"Conteo Educación en grupo de edad {choose_age_group}"] = df_filter["Education"].value_counts().values 
-    count_df[f"En porcentajes"] = df_filter["Education"].value_counts(normalize=True).values * 100
-    st.dataframe(count_df)
+    utils_frontend.contar_valores_por_grupo(df,"Age_Group", "Education")
+    
     st.markdown("""
 <div style="text-align: justify;">
                               
@@ -282,6 +276,111 @@ Podemos observar que la distribución es consistente en cada grupo de edad, con 
 El recuento de la variable 'marital status' revela que la mayoría de los individuos en nuestra muestra están casados (857),
 seguidos por aquellos que están en pareja pero no casados (572) y los solteros (470). Además, se observa una cantidad significativa de individuos divorciados (231).
 Sin embargo, hay categorías menos frecuentes, como viudos (76), personas que viven solas (Alone, 3), casos clasificados como 'Absurd' (2) y 'YOLO' (2).
-Se ha decidido eliminar las categorías con recuentos menores a 5 por considerarse poco representativas.
+Se ha decidido eliminar las categorías 'YOLO' y 'Absurd' ya que carecen de sentido e incluir 'Soltería' dentro del grupo de los solteros. Una vez aplicados estos cambios, la variable 'Marital Status'
+se distribuye de la siguiente manera. 
  </div>
 """, unsafe_allow_html=True)
+    
+    categorias_a_eliminar = ['Absurd', 'YOLO']
+    df = df[~df['Marital_Status'].isin(categorias_a_eliminar)]
+    df['Marital_Status'] = df['Marital_Status'].str.replace('Alone','Single')
+    df = df.reset_index()
+
+    utils_frontend.calcular_conteo_y_porcentaje(df,'Marital_Status')
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+### ¿Cómo se distribuye la renta de nuestros clientes?.
+                              
+Para obtener una buena visualización, aplicaremos el mismo método que con la variable 'Age' para observar si es necesario eliminar outliers.
+ </div>
+""", unsafe_allow_html=True)
+    
+    # Crear una figura con dos subplots (boxplot e histograma)
+    fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(7, 4), dpi=200)
+
+    # Solicitar al usuario que elija el factor de Tukey mediante un slider
+    tukey_factor = st.slider(label="Escoge factor de Tukey (un valor más elevado implica eliminar menos outliers)",
+                            max_value=5., min_value=0.2, step=0.1, value=1.5)
+
+    # Aplicar el método de Tukey para eliminar outliers en la columna "Age"
+    income_without_outliers = utils_frontend.apply_tuckey(numeric_col=df["Income"], tukey_factor=tukey_factor)
+
+    # Mostrar el boxplot de la columna "Age" sin outliers en el primer subplot
+    utils_frontend.mostrar_boxplot(income_without_outliers, ax=axes[0])
+
+    # Mostrar el histograma de la columna "Age" sin outliers en el segundo subplot
+    utils_frontend.mostrar_histograma(income_without_outliers, ax=axes[1])
+
+    # Ajustar el diseño de la figura y mostrarla en Streamlit
+    fig.tight_layout()
+    st.pyplot(fig)
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+Tras observar detalladamente los datos, hemos decidido aplicar el mismo método de z-score que utilizamos para la variable 'Age' para filtrar la muestra y eliminar los outliers,
+utilizando un umbral de 3 desviaciones estándar.
+ </div>
+""", unsafe_allow_html=True)
+    
+    zscore_income = zscore(df['Income'])
+    threshold=3
+    df = df[(zscore_income<threshold) & (zscore_income>-threshold)]
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+Para obtener más información sobre nuestra variable, veamos cuál es la media de la renta de los individuos agrupados por al variable que desees seleccionar.
+ </div>
+""", unsafe_allow_html=True)
+
+    variables_categoricas = ['Education', 'Marital_Status']
+    variable_seleccionada = st.selectbox("Selecciona una variable categórica", options=variables_categoricas)
+    st.dataframe(df.groupby(variable_seleccionada).agg({'Income': lambda x: round(x.mean(), 2)}))
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+### Análisis de Kidhome Y Teenhome de los clientes.
+                              
+A través del siguiente gráfico, observamos el recuento de niños y adolescentes que tienen nuestros clientes en sus hogares.
+ </div>
+""", unsafe_allow_html=True)
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+
+
+    sns.countplot(data=df, x='Kidhome', ax=axes[0])
+    axes[0].set_xlabel('Kidhome')
+    axes[0].set_ylabel('Count')
+    axes[0].set_title('Countplot de Kidhome')
+
+    sns.countplot(data=df, x='Teenhome', ax=axes[1])
+    axes[1].set_xlabel('Teenhome')
+    axes[1].set_ylabel('Count')
+    axes[1].set_title('Countplot de Teenhome')
+
+
+    st.pyplot(fig)
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+### Análisis de la variable Dt Customer.
+                              
+Esta variable hace referencia a la fecha en la que nuestros clientes se unieron a la empresa. Para obtener una agrupación más específica,
+nos hemos quedado únicamente con el año de las fechas en cuestión. Una vez realizados los cambios, la agrupación queda de la siguiente manera:
+ </div>
+""", unsafe_allow_html=True)
+    
+    df['Dt_Customer'] = pd.to_datetime(df['Dt_Customer'], format='%d-%m-%Y')
+    df['Dt_Customer'] = df['Dt_Customer'].dt.year
+
+    fig, ax = plt.subplots()
+    utils_frontend.mostrar_countplot(df, 'Dt_Customer', ax=ax)
+    fig.tight_layout()
+    st.pyplot(fig)
+
+
