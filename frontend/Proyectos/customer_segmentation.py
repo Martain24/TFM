@@ -233,45 +233,60 @@ df['Age_Group'] = df["Age"].apply(category_age)
     st.markdown("""
 <div style="text-align: justify;">
 
-### Analisis de la variable Educación y su realción con la edad.
-                              
-En el gráfico siguiente, se destaca que el nivel de educación más común entre los individuos de nuestra muestra es el de graduado, 
-abarcando más de la mitad de la población estudiada, seguido por doctorados y máster, y en menor medida, los de 2º ciclo y nuestra categoría minoritaria, Basic.
-Además, este gráfico ofrece la opción de visualizar los datos segmentados por grupos de edad, facilitando un análisis más detallado mediante un botón interactivo integrado en la visualización.
+### Análisis de la variable educación y su relación con la edad.
+La columna *Education* de nuestro DataFrame indica el nivel de educación que tiene cada individuo.
+Observemos como se distribuye esta variable categórica a través de un gráfico de barras.
  </div>
 """, unsafe_allow_html=True)
     
     #Countplot de Educación
     
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(7, 5), dpi=200)
     utils_frontend.mostrar_countplot(df, 'Education', ax=ax)
     fig.tight_layout()
     st.pyplot(fig)
-    
-    # Countplot de Educación por grupos de edad
-    fig, ax = plt.subplots()
-    sns.countplot(data=df, x='Age_Group', hue='Education', ax=ax)
-    ax.set_xlabel('Age Group')
-    ax.set_ylabel('Count')
-    ax.set_title('Countplot de Age Group y Education')
-    plt.xticks(rotation=45)
-    plt.legend(title='Education', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
-    st.pyplot(fig)
+    st.markdown("""
+<div style="text-align: justify;">
 
-    utils_frontend.contar_valores_por_grupo(df,"Age_Group", "Education")
+El grupo mayoritorio es claramente el formado por los graduados.
+Por otro lado, el minoritario está formado por aquellos de formación *Basic*.
+Lo que más llama la atención es que nuestros individuos tienen un nivel de estudios
+bastante elevado en general. 
+                
+¿Cómo se distribuye la educación en función de la edad?
+¿Cómo se distribuye la edad en función de la educación?
+Las siguientes dos tablas resolverán ambas preguntas
+En la primera tienes que escoger un grupo de edad para ver su distribución en educación.
+En la segunda tienes que escoger un nivel educativo para ver su distribución de edad.
+ </div>
+""", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        age_group = st.selectbox("Escoge un grupo de edad",
+                                options=df["Age_Group"].unique()) 
+        df_filter = df[df["Age_Group"]==age_group].copy()
+        st.write(f"Distribución educación en {age_group}")
+        st.dataframe(utils_frontend.calcular_conteo_y_porcentaje(df_filter["Education"]))
+    with col2:
+        education_group = st.selectbox("Escoge un nivel educativo",
+                                       options=df["Education"].unique())
+        df_filter = df[df["Education"]==education_group]
+        st.write(f"Distribución de la edad en {education_group}")
+        st.dataframe(df_filter["Age"].describe()[["mean", "std", "25%", "50%", "75%"]].T)
     
     st.markdown("""
 <div style="text-align: justify;">
                               
-Podemos observar que la distribución es consistente en cada grupo de edad, con una excepción notoria en el grupo más joven, donde tenemos una cantidad limitada de observaciones.
+Parece que todo se distribuye más o menos igual.
+Destacar que los más jóvenes son muy pocos y, por tanto, no se tiene una distribución 
+de la educación consistente en comparación con otras edades.
  </div>
 """, unsafe_allow_html=True)
     
     st.markdown("""
 <div style="text-align: justify;">
 
-### Tipos de marital status de nuestros clientes.
+### Análisis de la variable *Marital_Status*
                               
 El recuento de la variable 'marital status' revela que la mayoría de los individuos en nuestra muestra están casados (857),
 seguidos por aquellos que están en pareja pero no casados (572) y los solteros (470). Además, se observa una cantidad significativa de individuos divorciados (231).
@@ -286,7 +301,7 @@ se distribuye de la siguiente manera.
     df['Marital_Status'] = df['Marital_Status'].str.replace('Alone','Single')
     df = df.reset_index()
 
-    utils_frontend.calcular_conteo_y_porcentaje(df,'Marital_Status')
+    st.dataframe(utils_frontend.calcular_conteo_y_porcentaje(df["Marital_Status"]))
 
     st.markdown("""
 <div style="text-align: justify;">
@@ -302,7 +317,7 @@ Para obtener una buena visualización, aplicaremos el mismo método que con la v
 
     # Solicitar al usuario que elija el factor de Tukey mediante un slider
     tukey_factor = st.slider(label="Escoge factor de Tukey (un valor más elevado implica eliminar menos outliers)",
-                            max_value=5., min_value=0.2, step=0.1, value=1.5)
+                            max_value=10., min_value=0.2, step=0.1, value=1.5)
 
     # Aplicar el método de Tukey para eliminar outliers en la columna "Age"
     income_without_outliers = utils_frontend.apply_tuckey(numeric_col=df["Income"], tukey_factor=tukey_factor)
@@ -332,13 +347,20 @@ utilizando un umbral de 3 desviaciones estándar.
     st.markdown("""
 <div style="text-align: justify;">
 
-Para obtener más información sobre nuestra variable, veamos cuál es la media de la renta de los individuos agrupados por al variable que desees seleccionar.
+Para obtener más información sobre nuestra variable,
+observemos como se distribuye la renta en función de la variable categórica que selecciones.
  </div>
 """, unsafe_allow_html=True)
 
-    variables_categoricas = ['Education', 'Marital_Status']
+    variables_categoricas = ['Education', 'Marital_Status', "Age_Group"]
     variable_seleccionada = st.selectbox("Selecciona una variable categórica", options=variables_categoricas)
-    st.dataframe(df.groupby(variable_seleccionada).agg({'Income': lambda x: round(x.mean(), 2)}))
+    st.dataframe(df.groupby(variable_seleccionada)["Income"].describe())
+    st.markdown("""
+<div style="text-align: justify;">
+
+Destaca mucho las diferencias en la renta que existen en función del nivel educativo de los individuos.
+ </div>
+""", unsafe_allow_html=True)
 
     st.markdown("""
 <div style="text-align: justify;">
@@ -352,15 +374,9 @@ A través del siguiente gráfico, observamos el recuento de niños y adolescente
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))
 
 
-    sns.countplot(data=df, x='Kidhome', ax=axes[0])
-    axes[0].set_xlabel('Kidhome')
-    axes[0].set_ylabel('Count')
-    axes[0].set_title('Countplot de Kidhome')
+    utils_frontend.mostrar_countplot(df, "Kidhome", ax=axes[0])
 
-    sns.countplot(data=df, x='Teenhome', ax=axes[1])
-    axes[1].set_xlabel('Teenhome')
-    axes[1].set_ylabel('Count')
-    axes[1].set_title('Countplot de Teenhome')
+    utils_frontend.mostrar_countplot(df, "Teenhome", ax=axes[1])
 
 
     st.pyplot(fig)

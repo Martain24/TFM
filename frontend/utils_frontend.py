@@ -19,8 +19,8 @@ def apply_tuckey(numeric_col: pd.Series, tukey_factor: float = 1.5):
 def mostrar_boxplot(numeric_col: pd.Series, ax):
     sns.boxplot(numeric_col, ax=ax, color="skyblue")  
     ax.set_title(f'Boxplot de {numeric_col.name}')
-    ax.set_xlabel(numeric_col.name)
-    ax.set_ylabel('Frecuencia')
+    ax.set_ylabel(numeric_col.name)
+    ax.spines[['right', 'top']].set_visible(False)
 
 def mostrar_histograma(numeric_col: pd.Series, ax):
     # Obtener los cuartiles Q1, Q2 (mediana) y Q3
@@ -34,6 +34,7 @@ def mostrar_histograma(numeric_col: pd.Series, ax):
     ax.set_title(f'Histograma de {numeric_col.name}')
     ax.set_xlabel(numeric_col.name)
     ax.set_ylabel('Frecuencia')
+    ax.spines[['right', 'top']].set_visible(False)
     ax.legend()
 
 def mostrar_countplot(df, variable, ax):
@@ -41,6 +42,7 @@ def mostrar_countplot(df, variable, ax):
     ax.set_xlabel(variable)
     ax.set_ylabel('Count')
     ax.set_title(f'Countplot de {variable}')
+    ax.spines[['right', 'top']].set_visible(False)
 
 def contar_valores_por_grupo(df, variable_grupo, variable_contar):
     choose_grupo = st.selectbox("Escoge un grupo", options=df[variable_grupo].unique())
@@ -51,12 +53,10 @@ def contar_valores_por_grupo(df, variable_grupo, variable_contar):
     count_df[f"En porcentajes"] = df_filtrado[variable_contar].value_counts(normalize=True).values * 100
     st.dataframe(count_df)
 
-def calcular_conteo_y_porcentaje(df, columna):
+def calcular_conteo_y_porcentaje(columna_categorica: pd.Series):
     
-    conteo = df[columna].value_counts()
-    porcentaje = (conteo / len(df)) * 100
-    porcentaje = porcentaje.round(1)
+    conteo = columna_categorica.value_counts()
+    porcentaje = (columna_categorica.value_counts(normalize=True)*100).round(1)
     porcentaje_str = porcentaje.astype(str) + '%'
-    resultado = pd.DataFrame({'Conteo': conteo, 'Porcentaje': porcentaje_str})
-    st.dataframe(resultado)
+    return pd.DataFrame({'Conteo': conteo, 'Porcentaje': porcentaje_str})
     
