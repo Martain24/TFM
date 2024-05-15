@@ -114,7 +114,7 @@ def informacion_del_usuario():
 def pagina_proyectos():
     
     # Lista para almacenar los títulos de los artículos
-    titulos_articulos = ["Regresión logística para hacer pruebas", "Customer Segmentation"]
+    titulos_articulos = ["Customer Segmentation", "Regresión logística para hacer pruebas"]
 
     # Selectbox con los títulos de los artículos
     opcion = st.selectbox("Selecciona un artículo", titulos_articulos)
@@ -153,11 +153,12 @@ Escoge los parámetros de entrada:
                     response = requests.post(url=f"{URL_BACKEND}predictions/logistic_test_model", json=input_data, headers=headers)
                     st.success(f"Se espera que el salario del individuo sea: {response.json()['prediction_output']['predicted_salary']}")
     elif opcion == "Customer Segmentation":
-        indice = st.radio("¿Qué quieres ver aquí?", options=["Descripción del proyecto", "Exploratory Data Analysis"])
-        if indice == "Descripción del proyecto":
-            customer_segmentation.descripcion_del_proyecto()
-        elif indice=="Exploratory Data Analysis":
+        indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "Descripción del proyecto"])
+        if indice=="Exploratory Data Analysis":
             customer_segmentation.exploratory_data_analysis()
+        elif indice == "Descripción del proyecto":
+            customer_segmentation.descripcion_del_proyecto()
+        
 
 
 # Barra lateral con opciones de navegación

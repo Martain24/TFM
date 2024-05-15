@@ -5,6 +5,7 @@ from datetime import datetime
 from scipy.stats import zscore
 import seaborn as sns
 sns.set_style("whitegrid")
+import utils_frontend
 
 def descripcion_del_proyecto():
     st.markdown("""
@@ -93,52 +94,36 @@ df = df.dropna().reset_index(drop=True)
     df = df.dropna().reset_index(drop=True)
 # Creamos una columna de edad que es mejor que Year Birth
     df["Age"] = df["Year_Birth"].apply(lambda x : datetime.now().year - x)
-    
-    
+
     
     #EDAD
+    st.markdown(f"""
+    <div style="text-align: justify;">
+                    
+    ### Estudio de la variable edad
+    En nuestro DataFrame se registra la fecha de nacimiento de los individuos en lugar de su edad.
+    Sin embargo, resulta más práctico y comprensible trabajar con edades en lugar de fechas de nacimiento.
+    Por ello, vamos a crear una nueva columna de edad a partir de la columna *Year_Birth* con la siguiente línea de código:
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.code('''
+    from datetime import datetime
+
+    # Creamos una columna de edad que es más conveniente que Year Birth
+    df["Age"] = df["Year_Birth"].apply(lambda x: datetime.now().year - x)
+    ''')       
+
     st.markdown("""
-<div style="text-align: justify;">
-                
-### Distribución y preprocesado de la edad de los individuos.
-Tras realizar un análisis exploratorio de la variable 'age', 
-que incluye la creación de un boxplot y un histograma para entender su distribución y posibles valores atípicos.
-Se identificaron valores atípicos en la variable de edad, los cuales podrían ser resultado de errores o datos inusuales.
-</div>
-""", unsafe_allow_html=True)
+    <div style="text-align: justify;">
 
-    # Función para aplicar el método de Tukey y eliminar outliers
-    def apply_tuckey(numeric_col: pd.Series, tukey_factor: float = 1.5):
-        # Calcular los cuartiles Q1 y Q3
-        q1, q3 = numeric_col.describe()["25%"], numeric_col.describe()["75%"]
-        # Calcular el rango intercuartílico (IQR)
-        iqr = q3 - q1
-        # Calcular los límites superior e inferior según el factor de Tukey
-        ceiling, floor = q3 + tukey_factor * iqr, q1 - tukey_factor * iqr 
-        # Devolver solo los valores que están dentro de los límites
-        return numeric_col[(floor <= numeric_col) & (numeric_col <= ceiling)]
+    Una forma visual y sencilla de estudiar la distribución de una variable numérica es representarla con un **boxplot** y un **histograma**.
+    En la siguiente figura se muestran estos dos gráficos para la variable *Age* que acabamos de crear. 
+    Además, podrás seleccionar un factor de Tukey para eliminar los valores atípicos
+    y observar cómo cambia la distribución en función del factor elegido.
 
-    # Función para mostrar un boxplot de una columna numérica
-    def mostrar_boxplot(numeric_col: pd.Series, ax):
-        sns.boxplot(numeric_col, ax=ax, color="skyblue")  
-        ax.set_title(f'Boxplot de {numeric_col.name}')
-        ax.set_xlabel(numeric_col.name)
-        ax.set_ylabel('Frecuencia')
-
-    # Función para mostrar un histograma de una columna numérica con líneas para los cuartiles
-    def mostrar_histograma(numeric_col: pd.Series, ax):
-        # Obtener los cuartiles Q1, Q2 (mediana) y Q3
-        q1, q2, q3 = numeric_col.describe()["25%"], numeric_col.describe()["50%"], numeric_col.describe()["75%"]
-        # Dibujar el histograma
-        sns.histplot(numeric_col, bins=10, color='skyblue', edgecolor='black', ax=ax) 
-        # Añadir líneas verticales para los cuartiles
-        ax.axvline(q1, c="red", ls="--", label=f"Q1 = {q1:.2f}")
-        ax.axvline(q2, c="green", ls="--", label=f"Q2 = {q2:.2f}")
-        ax.axvline(q3, c="black", ls="--", label=f"Q3 = {q3:.2f}")
-        ax.set_title(f'Histograma de {numeric_col.name}')
-        ax.set_xlabel(numeric_col.name)
-        ax.set_ylabel('Frecuencia')
-        ax.legend()
+    </div>              
+    """, unsafe_allow_html=True)
 
     # Crear una figura con dos subplots (boxplot e histograma)
     fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(7, 4), dpi=200)
@@ -148,30 +133,34 @@ Se identificaron valores atípicos en la variable de edad, los cuales podrían s
                             max_value=5., min_value=0.2, step=0.1, value=1.5)
 
     # Aplicar el método de Tukey para eliminar outliers en la columna "Age"
-    age_without_outliers = apply_tuckey(numeric_col=df["Age"], tukey_factor=tukey_factor)
+    age_without_outliers = utils_frontend.apply_tuckey(numeric_col=df["Age"], tukey_factor=tukey_factor)
 
     # Mostrar el boxplot de la columna "Age" sin outliers en el primer subplot
-    mostrar_boxplot(age_without_outliers, ax=axes[0])
+    utils_frontend.mostrar_boxplot(age_without_outliers, ax=axes[0])
 
     # Mostrar el histograma de la columna "Age" sin outliers en el segundo subplot
-    mostrar_histograma(age_without_outliers, ax=axes[1])
+    utils_frontend.mostrar_histograma(age_without_outliers, ax=axes[1])
 
     # Ajustar el diseño de la figura y mostrarla en Streamlit
     fig.tight_layout()
     st.pyplot(fig)
 
-#Cambiamos entre gráficos con este botón
-    # if st.button('Mostrar boxplot de Edad'):
-    #     mostrar_boxplot("Age")
-
-    # if st.button('Mostrar histograma de Edad'):
-    #     mostrar_histograma("Age")
-
     st.markdown("""
 <div style="text-align: justify;">
-                
-Para abordar esta situación, a continuación se muestra el código utilizado para aplicar el método z-score con el fin de detectar y tratar estos outliers:
- </div>
+
+Una manera más análitica de analizar la distribución de una variable es usando el método ```describe()``` 
+sobre una serie de pandas. Con este método obtendremos métricas estadísticas útiles sobre la variable en cuestión.
+Veamos que nos dice dicho método acerca de la variable *age*
+""", unsafe_allow_html=True)
+    st.code("""
+df["Age"].describe()
+""")
+    st.dataframe(df["Age"].describe().T)
+    st.markdown("""
+<div style="text-align: justify;">
+Parece que hay individuos con edades superiores a 120.
+No creemos que sean demasiado representativos. 
+Lo mejor que podemos hacer es eliminarlos de nuestro conjunto de datos con las siguientes líneas de código.
 """, unsafe_allow_html=True)
     
     st.code("""
@@ -195,12 +184,7 @@ Tras la eliminación de valores atípicos, observamos que la distribución de la
 siendo este el valor más común en nuestra base de datos. La edad promedio es de aproximadamente 55 años, con un valor mínimo de 28 y un máximo de 84.
  </div>
 """, unsafe_allow_html=True)
-    st.dataframe(pd.DataFrame(df['Age'].describe()))
-    if st.button('Mostrar boxplot de Edad 2'):
-        mostrar_boxplot("Age")
-
-    if st.button('Mostrar histograma de Edad 2'):
-        mostrar_histograma("Age")
+    st.dataframe(pd.DataFrame(df['Age'].describe().T))
 
     st.markdown("""
 <div style="text-align: justify;">
@@ -209,23 +193,21 @@ Con el propósito de categorizar a nuestros individuos en distintos grupos de ed
  </div>
 """, unsafe_allow_html=True)
     st.code("""
-            age_groups = []
-
-# Iteramos sobre las edades y alas asignamos a la lista según su condición
-for age in df['Age']:
+# Función para crear categoría en la variable age
+def category_age(age):
     if age <= 18:
-        age_groups.append('0-18')
+        return '0-18'
     elif age <= 30:
-        age_groups.append('19-30')
+        return '19-30'
     elif age <= 50:
-        age_groups.append('31-50')
+        return '31-50'
     elif age <= 70:
-        age_groups.append('51-70')
+        return '51-70'
     else:
-        age_groups.append('71+')
+        return '71+'
 
-# Creamos nuestra nueva variable a partir de la lista anterior
-df['Age_Group'] = age_groups
+# Creamos nuestra nueva variable a partir de la función anterior
+df['Age_Group'] = df["Age"].apply(category_age)
 """)
     age_groups = []
 
@@ -244,7 +226,10 @@ df['Age_Group'] = age_groups
 
 # Creamos nuestra nueva variable a partir de la lista anterior
     df['Age_Group'] = age_groups
-    
+
+    fig,ax = plt.subplots()
+    utils_frontend.mostrar_countplot(df, "Age_Group", ax)
+    st.pyplot(fig)
     st.markdown("""
 <div style="text-align: justify;">
 
@@ -257,17 +242,10 @@ Además, este gráfico ofrece la opción de visualizar los datos segmentados por
 """, unsafe_allow_html=True)
     
     #Countplot de Educación
-    def mostrar_countplot(variable):
-        fig, ax = plt.subplots()
-        sns.countplot(data=df, x=variable, ax=ax)
-        ax.set_xlabel(variable)
-        ax.set_ylabel('Count')
-        ax.set_title(f'Countplot de {variable}')
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        return fig, ax
-
-    fig, ax = mostrar_countplot('Education')
+    
+    fig, ax = plt.subplots()
+    utils_frontend.mostrar_countplot(df, 'Education', ax=ax)
+    fig.tight_layout()
     st.pyplot(fig)
     
     # Countplot de Educación por grupos de edad
@@ -281,6 +259,14 @@ Además, este gráfico ofrece la opción de visualizar los datos segmentados por
     plt.tight_layout()
     st.pyplot(fig)
 
+    choose_age_group = st.selectbox("Escoge un grupo de edad",
+                                    options=df["Age_Group"].unique())
+    df_filter = df[df["Age_Group"] == choose_age_group]
+    count_df = pd.DataFrame()
+    count_df.index = df_filter["Education"].value_counts().index 
+    count_df[f"Conteo Educación en grupo de edad {choose_age_group}"] = df_filter["Education"].value_counts().values 
+    count_df[f"En porcentajes"] = df_filter["Education"].value_counts(normalize=True).values * 100
+    st.dataframe(count_df)
     st.markdown("""
 <div style="text-align: justify;">
                               
