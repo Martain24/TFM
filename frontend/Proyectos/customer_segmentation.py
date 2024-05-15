@@ -399,4 +399,67 @@ nos hemos quedado únicamente con el año de las fechas en cuestión. Una vez re
     fig.tight_layout()
     st.pyplot(fig)
 
+    st.markdown("""
+<div style="text-align: justify;">
+
+### Análisis de la variable Recency.
+                              
+La variable *Recency* nos indica la media de días que hay entre las compras de un individuo.
+Por ejemplo, si un individuo tiene una *Recency* de $50$ entonces, de media, hay $50$ días entre compra y compra de dicho individuo.
+Observemos como se distribuye esta variable numérica a través de un histograma y un boxplot.
+ </div>
+""", unsafe_allow_html=True) 
+    # Crear una figura con dos subplots (boxplot e histograma)
+    fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(7, 4), dpi=200)
+
+    # Mostrar el boxplot de la columna "Age" sin outliers en el primer subplot
+    utils_frontend.mostrar_boxplot(df["Recency"], ax=axes[0])
+
+    # Mostrar el histograma de la columna "Age" sin outliers en el segundo subplot
+    utils_frontend.mostrar_histograma(df["Recency"], ax=axes[1])
+    fig.tight_layout()
+    st.pyplot(fig)
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+**Pregunta**: ¿Cuánto más elevado sea el Income más elevado será el Recency o al revés?
+Para responder esta pregunta podemos usar un simple *scatterplot* y observar la correlación entre ambas variables.
+ </div>
+""", unsafe_allow_html=True) 
+    fig,ax = plt.subplots(figsize=(7, 5), dpi=200)
+    utils_frontend.mostrar_scatterplot(x=df["Income"], y=df["Recency"], ax=ax)
+    st.pyplot(fig)
+    st.markdown("""
+<div style="text-align: justify;">
+
+Observando el gráfico de arriba queda claro que no existe ninguna **relación lineal** entre el *income* y el *recency*. 
+¿Habrá relaciones entre Recency y las variables categóricas que ya hemos estudiado? 
+Con la siguiente tabla y gráfico dinámicos podremos encontrar la respuesta a esta pregunta de forma sencilla.
+
+ </div>
+""", unsafe_allow_html=True) 
+    variable_categorica = st.selectbox("Selecciona una variable categórica",
+                                       options=["Age_Group", "Marital_Status", "Education"])
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.dataframe(df.groupby(variable_categorica)["Recency"].describe()[["mean", "25%", "50%", "75%"]]) 
+    with col2:
+        means = df.groupby(variable_categorica)["Recency"].mean().sort_values(ascending=False)
+        fig,ax = plt.subplots(figsize=(5, 5))
+        sns.barplot(x=means.index, y=means.values, ax=ax)
+        ax.set_xlabel(f"Categorías de {variable_categorica}")
+        ax.set_ylabel("Media en Recency")
+        st.pyplot(fig)
+    st.markdown("""
+<div style="text-align: justify;">
+
+Es realmente interesante. Parece que la Recency es igual para cualquier categoría de clientes.
+
+ </div>
+""", unsafe_allow_html=True) 
+
+
+
 

@@ -59,4 +59,13 @@ def calcular_conteo_y_porcentaje(columna_categorica: pd.Series):
     porcentaje = (columna_categorica.value_counts(normalize=True)*100).round(1)
     porcentaje_str = porcentaje.astype(str) + '%'
     return pd.DataFrame({'Conteo': conteo, 'Porcentaje': porcentaje_str})
+
+def mostrar_scatterplot(x:pd.Series, y:pd.Series, ax, hue=None):
+    df_variables = pd.DataFrame({x.name: x, y.name: y})
+    correlacion = df_variables.corr()[x.name][y.name]
+    sns.scatterplot(x=df_variables[x.name], y=df_variables[y.name], hue=hue)
+    ax.set_title(f"Correlación = {correlacion:.2f}")
+    ax.spines[['right', 'top']].set_visible(False)
+
+
     
