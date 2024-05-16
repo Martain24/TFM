@@ -73,3 +73,13 @@ def mostrar_acumulado(df: pd.DataFrame, variables: list, ax):
     ax.set_ylabel('Total')
     ax.tick_params(axis='x', rotation=45)
     
+def calcular_conteo_y_porcentaje_2(df, variables_categoricas, variable_contar):
+    variable_categorica_elegida = st.selectbox("Selecciona tu variable categórica", options=variables_categoricas)
+    df_filtrado = df[df[variable_contar] == 1]
+    conteo_por_categoria = df_filtrado.groupby(variable_categorica_elegida)[variable_contar].sum()
+    total_por_categoria = df.groupby(variable_categorica_elegida)[variable_contar].sum()
+    porcentaje_por_categoria = (conteo_por_categoria.div(total_por_categoria, axis=0) * 100).round(1)
+    result = pd.concat([conteo_por_categoria, porcentaje_por_categoria], axis=1, keys=['Conteo', 'Porcentaje'])
+    result = result[(result['Conteo'] != 0) | (result['Porcentaje'] != 0)]
+    
+    return result

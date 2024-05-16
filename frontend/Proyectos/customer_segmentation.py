@@ -459,6 +459,18 @@ Es realmente interesante. Parece que la Recency es igual para cualquier categor�
 
  </div>
 """, unsafe_allow_html=True) 
+    
+    st.markdown("""
+<div style="text-align: justify;">
+
+### Análisis de la variable Complain.
+                              
+La variable complain es una dummy que toma valor 1 si el cliente en cuestion ha puesto alguna queja en los últimmos 2 años
+y 0 en caso contrario, veamos como se distruye dicha variable
+ </div>
+""", unsafe_allow_html=True)
+    variables =["Age_Group", "Marital_Status", "Education"]
+    st.dataframe(utils_frontend.calcular_conteo_y_porcentaje_2(df, variables, 'Complain'))
 
     st.markdown("""
 <div style="text-align: justify;">
@@ -503,3 +515,80 @@ con cualquier variable categórica que divida a nuestros clientes según sus car
         ax.set_xlabel(f"Categorías de {variable_categorica}")
         ax.set_ylabel(f"Media del consumo de {producto}")
         st.pyplot(fig)  
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+### ¿Han sido efectivas nuestras campañas publicitarias?
+                              
+En el siguiente gráfico, se presentan las variables relacionadas con nuestras campañas publicitarias.
+Un valor de 1 indica que el cliente ha realizado una compra después de esa campaña, mientras que un valor de 0 indica lo contrario.
+La variable 'response' se refiere a la última campaña.
+ </div>
+""", unsafe_allow_html=True)
+    
+    campañas = ['AcceptedCmp1', 'AcceptedCmp2', 'AcceptedCmp3', 'AcceptedCmp4', 'AcceptedCmp5', 'Response']
+    fig, ax = plt.subplots(figsize=(7, 5), dpi=200)
+    utils_frontend.mostrar_acumulado(df,campañas,ax)
+    fig.tight_layout()
+    st.pyplot(fig)
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+### ¿Qué canales prefieren nuestros clientes para realizar sus compras?
+                              
+ El análisis de estas variables nos permite comprender cómo los clientes interactúan con la empresa a través de diferentes canales de compra,
+ lo que nos ayuda a identificar patrones de comportamiento, preferencias y oportunidades de mejora en las estrategias de ventas y marketing.
+ Al igual que para el caso de los productos comenzaremos observando el número total de compras realizadas a través de cada canal.
+ </div>
+""", unsafe_allow_html=True)
+    
+    canales = [ 'NumDealsPurchases', 'NumWebPurchases','NumCatalogPurchases', 'NumStorePurchases', 'NumWebVisitsMonth']
+    fig, ax = plt.subplots(figsize=(7, 5), dpi=200)
+    utils_frontend.mostrar_acumulado(df,canales,ax)
+    fig.tight_layout()
+    st.pyplot(fig)
+
+    st.markdown("""
+<div style="text-align: justify;">
+                              
+Como se puede observar, la mayoría de las compras se realizan en tiendas físicas, seguidas por las compras en línea.
+Sin embargo, es crucial comprender las características de nuestros clientes que están asociadas con estos tipos de compras.
+Esto es lo que exploraremos en nuestro próximo gráfico interactivo.
+ </div>
+""", unsafe_allow_html=True)
+    
+    variable_categorica = st.selectbox("Seleccionar variable categórica",
+                                   options=["Age_Group", "Marital_Status", "Education"])
+    canales = st.selectbox("Selecciona un canal de compra",
+                        options=['NumDealsPurchases', 'NumWebPurchases','NumCatalogPurchases', 'NumStorePurchases', 'NumWebVisitsMonth'])  
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        filtered_means = df.groupby(variable_categorica)[canales].sum()
+        st.dataframe(filtered_means)
+
+    with col2:
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.barplot(x=filtered_means.index, y=filtered_means.values, ax=ax)
+        ax.set_xlabel(f"Categorías de {variable_categorica}")
+        ax.set_ylabel(f"Total de compras a través de {canales}")
+        st.pyplot(fig)  
+
+
+    st.markdown("""
+<div style="text-align: justify;">
+                              
+Debido a la limitada muestra de datos que tenemos, el grupo de edad más joven apenas muestra significancia en cualquier canal de compra.
+Por otro lado, los demás grupos de edad comparten una distribución similar, siendo el grupo de edad de 51 a 70 años el que realiza más compras a través de todos los canales.
+                
+En cuanto al estado civil, los casados y los que tienen pareja son los que lideran en todos los canales de compra, seguidos por los solteros.
+Por otro lado, aquellos que menos compras realizan son los divorciados y los viudos.
+                
+Los graduados son los que realizan más compras a través de todos los canales,
+marcando una clara diferencia con respecto a los demás niveles educativos.
+Esta tendencia tiene sentido, dado que la categoría de graduados es la más representativa en nuestra muestra.
+ </div>
+""", unsafe_allow_html=True)
