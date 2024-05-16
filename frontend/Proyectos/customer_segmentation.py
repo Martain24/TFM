@@ -460,6 +460,46 @@ Es realmente interesante. Parece que la Recency es igual para cualquier categor�
  </div>
 """, unsafe_allow_html=True) 
 
+    st.markdown("""
+<div style="text-align: justify;">
 
+### Análisis de las variables relacionadas con los productos.
+                              
+Las variables asociadas con nuestros productos representan la cantidad comprada por cada cliente para cada uno de nuestros distintos productos.
+Para profundizar en el análisis del consumo de nuestros clientes, comenzaremos observando la cantidad total consumida de cada producto.
+ </div>
+""", unsafe_allow_html=True) 
+    
+    productos = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+    fig, ax = plt.subplots(figsize=(7, 5), dpi=200)
+    utils_frontend.mostrar_acumulado(df,productos,ax)
+    fig.tight_layout()
+    st.pyplot(fig)
 
+    st.markdown("""
+<div style="text-align: justify;">
+                              
+Se observa claramente que el producto más consumido por nuestros clientes es el vino, seguido de los productos cárnicos. 
+Posteriormente, el consumo de los demás productos es más homogéneo. Sin embargo, para comprender más profundamente la relación entre el consumo de cada producto y las
+características de los clientes, utilizaremos gráficos interactivos.Estos nos permitirán explorar las relaciones de cada producto seleccionado
+con cualquier variable categórica que divida a nuestros clientes según sus características.
+ </div>
+""", unsafe_allow_html=True)
 
+    variable_categorica = st.selectbox("Selecciona la variable categórica",
+                                   options=["Age_Group", "Marital_Status", "Education"])
+    producto = st.selectbox("Selecciona un producto",
+                        options=['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds'])  
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        filtered_means = df.groupby(variable_categorica)[producto].mean()
+        st.dataframe(filtered_means)
+
+    with col2:
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.barplot(x=filtered_means.index, y=filtered_means.values, ax=ax)
+        ax.set_xlabel(f"Categorías de {variable_categorica}")
+        ax.set_ylabel(f"Media del consumo de {producto}")
+        st.pyplot(fig)  

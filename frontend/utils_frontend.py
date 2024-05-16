@@ -67,5 +67,9 @@ def mostrar_scatterplot(x:pd.Series, y:pd.Series, ax, hue=None):
     ax.set_title(f"Correlación = {correlacion:.2f}")
     ax.spines[['right', 'top']].set_visible(False)
 
-
+def mostrar_acumulado(df: pd.DataFrame, variables: list, ax):
+    suma_gastos = df[variables].sum()
+    ax.bar(suma_gastos.index, suma_gastos)
+    ax.set_ylabel('Total')
+    ax.tick_params(axis='x', rotation=45)
     
