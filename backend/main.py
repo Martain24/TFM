@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from . import models
 from .database import engine
-from .routers import users, comments, articles, auth, predictions
+from .routers import ml_models, users, comments, auth, predictions
 
 import joblib
 
@@ -15,7 +15,7 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(comments.router)
-app.include_router(articles.router)
+app.include_router(ml_models.router)
 app.include_router(users.router)
 app.include_router(predictions.router)
 app.include_router(auth.router)

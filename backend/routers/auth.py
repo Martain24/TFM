@@ -30,7 +30,11 @@ def login(user_credentials:OAuth2PasswordRequestForm = Depends(), db: Session = 
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail=f"Invalid email or password")
     
-    # Creando un token de acceso para el usuario autenticado
     access_token = utils.create_access_token(data_of_user_to_create_access_token={"user_id": user.id})
+    if user.is_confirmed == False:
+        utils.send_registration_email(access_token=access_token, recipients=[user.email])
+        raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                            detail=f"You have to confirm your user before being able to login. We have sent you an email with your confirmation token")
+
     # Retornando el token de acceso
     return {"access_token": access_token, "token_type": "bearer"}

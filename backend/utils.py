@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 from dotenv import dotenv_values 
 import smtplib
 from email.mime.text import MIMEText
+import joblib
+import os
 
 settings = dotenv_values(".env")
 
@@ -66,11 +68,30 @@ def get_current_user(token:str = Depends(oauth2_scheme), db: Session = Depends(d
     return user
 
 
-def send_email(subject, body, sender, recipients, password):
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = sender
+def send_registration_email(access_token, recipients):
+    body_of_email = f"""¡Hola y bienvenido!
+
+Esto es un correo de bienvenida y de confirmación. Esperamos que nuestra API junto con nuestra web te sean de mucha utilidad.
+
+Aquí tienes tu token de confirmación:
+
+Token -> {access_token}
+
+Token Type -> bearer
+
+Para usarlo en nuestro frontend simplemente pega el Token.
+
+Si quieres usarlo desde python tendrás que crear el siguiente diccionario:
+
+headers = {{"Authentification": "bearer {access_token}}}
+
+y pásalo como u headers en tus requests.
+"""
+    msg = MIMEText(body_of_email)
+    msg['Subject'] = "Token de acceso y bienvenida"
+    msg['From'] = "miluma082@gmail.com"
     msg['To'] = ', '.join(recipients)
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-       smtp_server.login(sender, password)
-       smtp_server.sendmail(sender, recipients, msg.as_string())
+       smtp_server.login("miluma082@gmail.com", settings["EMAIL_PASSWORD"])
+       smtp_server.sendmail("miluma082@gmail.com", recipients, msg.as_string())
+

@@ -8,6 +8,8 @@ from .database import Base
 class Users(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
+    name = Column(String, nullable=False)
+    surname = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
@@ -16,8 +18,8 @@ class Users(Base):
 
 
 # Definición de la clase para la tabla 'articles'
-class Articles(Base):
-    __tablename__ = "articles"
+class MlModels(Base):
+    __tablename__ = "ml_models"
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     title = Column(String, nullable=False)
     short_description = Column(String, nullable=False)
@@ -30,14 +32,14 @@ class Predictions(Base):
     __tablename__ = "predictions"
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    article_id = Column(Integer, ForeignKey("articles.id", ondelete="CASCADE"), nullable=False)
+    mlmodel_id = Column(Integer, ForeignKey("ml_models.id", ondelete="CASCADE"), nullable=False)
     prediction_input = Column(JSON, nullable=False)
     prediction_output = Column(JSON, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
 
     # Relacionamos con Users y Articles para obtener info más completa al hacer la query
     user = relationship("Users")
-    article = relationship("Articles")
+    ml_model = relationship("MlModels")
 
 # Definición de la clase para la tabla 'comments'
 class Comments(Base):
@@ -46,8 +48,8 @@ class Comments(Base):
     content = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    article_id = Column(Integer, ForeignKey("articles.id", ondelete="CASCADE"), nullable=False)
+    mlmodel_id = Column(Integer, ForeignKey("ml_models.id", ondelete="CASCADE"), nullable=False)
 
     # Relacionamos con Users y Articles para obtener infor más completa al hacer la query
     user = relationship("Users")
-    article = relationship("Articles")
+    ml_model = relationship("MlModels")

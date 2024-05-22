@@ -1,6 +1,12 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
+class UserRegistration(BaseModel):
+    name: str
+    surname: str
+    email: EmailStr 
+    password: str
+
 # Definición de la clase Pydantic para la entrada de usuario
 class UserInput(BaseModel):
     email: EmailStr   # Correo electrónico del usuario
@@ -9,6 +15,8 @@ class UserInput(BaseModel):
 # Definición de la clase Pydantic para la salida de usuario
 class UserOutput(BaseModel):
     id: int               # Identificador único del usuario
+    name: str
+    surname: str
     email: EmailStr       # Correo electrónico del usuario
     created_at: datetime  # Fecha y hora de creación del usuario
     is_confirmed: bool
@@ -17,7 +25,7 @@ class UserOutput(BaseModel):
         from_attributes = True
 
 # Definición de la clase Pydantic para los artículos
-class Article(BaseModel):
+class MlModel(BaseModel):
     title: str              # Título del artículo
     short_description: str  # Breve descripción del artículo
     filename_of_model: str
@@ -30,7 +38,7 @@ class PredictionInput(BaseModel):
 # Definición de la clase Pydantic para la salida de predicciones
 class PredictionOutput(BaseModel):
     user: UserOutput      # Información del usuario asociado a la predicción
-    article: Article      # Información del artículo asociado a la predicción
+    ml_model: MlModel      # Información del artículo asociado a la predicción
     prediction_input: dict
     prediction_output: dict
 
@@ -40,7 +48,7 @@ class PredictionOutput(BaseModel):
 # Definición de la clase Pydantic para la entrada de comentarios
 class CommentInput(BaseModel):
     content: str          # Contenido del comentario
-    article_id: int
+    mlmodel_id: int
 
 
 # Definición de la clase Pydantic para la salida de comentarios
@@ -48,7 +56,7 @@ class CommentOutput(BaseModel):
     id: int
     user: UserOutput      # Información del usuario que realizó el comentario
     content: str          # Contenido del comentario
-    article: Article      # Información del artículo al que pertenece el comentario
+    ml_model: MlModel      # Información del artículo al que pertenece el comentario
     created_at: datetime  # Fecha y hora de creación del comentario
 
     class Config:
