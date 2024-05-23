@@ -47,8 +47,7 @@ En detalle, aquí proporcionamos una breve descripción de cada una de las colum
    - MntProductosCarne: Monto gastado en carne en los últimos 2 años
    - MntProductosPescado: Monto gastado en pescado en los últimos 2 años
    - MntProductosDulces: Monto gastado en dulces en los últimos 2 años
-   - MntProductosOro: Monto gastado en oro en los últimos 2 años
-
+   
 3. **Variables de Promociones y Campañas Publicitarias**
    - NumComprasOferta: Número de compras realizadas con descuento
    - AceptoCmp1: 1 si el cliente aceptó la oferta en la 1ra campaña, 0 en caso contrario
@@ -79,10 +78,10 @@ df.isnull().sum()""")
     st.markdown(f"""
 <div style="text-align: justify;">
                 
-Se observa que la única columna con valores nulos es **Income**. 
-Solamente tiene 24 valores nulos.
+Se observa que las únicas columnas con valores nulos son **Income** y aquellas relacionadas con los **productos** consumidos por los clientes. 
+Solamente tienen 24 valores nulos.
 Teniendo en cuenta que nuestro DataFrame tiene {df.shape[0]} filas, no pasará nada si eliminamos dichos valores nulos.
-Para eliminarlos simplemente ejecutamos la siguiente línea de código
+Para eliminarlos simplemente ejecutamos la siguiente línea de código.
 
 </div>
 """, unsafe_allow_html=True)
@@ -125,23 +124,17 @@ df = df.dropna().reset_index(drop=True)
     </div>              
     """, unsafe_allow_html=True)
 
-    # Crear una figura con dos subplots (boxplot e histograma)
     fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(7, 4), dpi=200)
 
-    # Solicitar al usuario que elija el factor de Tukey mediante un slider
     tukey_factor = st.slider(label="Escoge factor de Tukey (más elevado implica eliminar menos outliers)",
                             max_value=5., min_value=0.2, step=0.1, value=1.5)
 
-    # Aplicar el método de Tukey para eliminar outliers en la columna "Age"
     age_without_outliers = utils_frontend.apply_tuckey(numeric_col=df["Age"], tukey_factor=tukey_factor)
 
-    # Mostrar el boxplot de la columna "Age" sin outliers en el primer subplot
     utils_frontend.mostrar_boxplot(age_without_outliers, ax=axes[0])
 
-    # Mostrar el histograma de la columna "Age" sin outliers en el segundo subplot
     utils_frontend.mostrar_histograma(age_without_outliers, ax=axes[1])
 
-    # Ajustar el diseño de la figura y mostrarla en Streamlit
     fig.tight_layout()
     st.pyplot(fig)
 
@@ -253,8 +246,8 @@ Por otro lado, el minoritario está formado por aquellos de formación *Basic*.
 Lo que más llama la atención es que nuestros individuos tienen un nivel de estudios
 bastante elevado en general. 
                 
-¿Cómo se distribuye la educación en función de la edad?
-¿Cómo se distribuye la edad en función de la educación?
+### ¿Cómo se distribuye la educación en función de la edad? ¿Y la edad en función de la educación?
+
 Las siguientes dos tablas resolverán ambas preguntas
 En la primera tienes que escoger un grupo de edad para ver su distribución en educación.
 En la segunda tienes que escoger un nivel educativo para ver su distribución de edad.
@@ -312,23 +305,17 @@ Para obtener una buena visualización, aplicaremos el mismo método que con la v
  </div>
 """, unsafe_allow_html=True)
     
-    # Crear una figura con dos subplots (boxplot e histograma)
     fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(7, 4), dpi=200)
 
-    # Solicitar al usuario que elija el factor de Tukey mediante un slider
     tukey_factor = st.slider(label="Escoge factor de Tukey (un valor más elevado implica eliminar menos outliers)",
                             max_value=10., min_value=0.2, step=0.1, value=1.5)
 
-    # Aplicar el método de Tukey para eliminar outliers en la columna "Age"
     income_without_outliers = utils_frontend.apply_tuckey(numeric_col=df["Income"], tukey_factor=tukey_factor)
 
-    # Mostrar el boxplot de la columna "Age" sin outliers en el primer subplot
     utils_frontend.mostrar_boxplot(income_without_outliers, ax=axes[0])
 
-    # Mostrar el histograma de la columna "Age" sin outliers en el segundo subplot
     utils_frontend.mostrar_histograma(income_without_outliers, ax=axes[1])
 
-    # Ajustar el diseño de la figura y mostrarla en Streamlit
     fig.tight_layout()
     st.pyplot(fig)
 
@@ -409,13 +396,11 @@ Por ejemplo, si un individuo tiene una *Recency* de $50$ entonces, de media, hay
 Observemos como se distribuye esta variable numérica a través de un histograma y un boxplot.
  </div>
 """, unsafe_allow_html=True) 
-    # Crear una figura con dos subplots (boxplot e histograma)
+   
     fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(7, 4), dpi=200)
 
-    # Mostrar el boxplot de la columna "Age" sin outliers en el primer subplot
     utils_frontend.mostrar_boxplot(df["Recency"], ax=axes[0])
 
-    # Mostrar el histograma de la columna "Age" sin outliers en el segundo subplot
     utils_frontend.mostrar_histograma(df["Recency"], ax=axes[1])
     fig.tight_layout()
     st.pyplot(fig)
@@ -465,12 +450,31 @@ Es realmente interesante. Parece que la Recency es igual para cualquier categor�
 
 ### Análisis de la variable Complain.
                               
-La variable complain es una dummy que toma valor 1 si el cliente en cuestion ha puesto alguna queja en los últimmos 2 años
-y 0 en caso contrario, veamos como se distruye dicha variable
+La variable complain es una variable dummy que toma el valor 1 si el cliente ha presentado alguna queja en los últimos dos años y 0 en caso contrario.
+A continuación, presentamos la distribución de esta variable a través de la siguiente tabla, 
+la cual permite filtrar por diferentes variables categóricas para profundizar en el análisis de complain.
  </div>
 """, unsafe_allow_html=True)
-    variables =["Age_Group", "Marital_Status", "Education"]
-    st.dataframe(utils_frontend.calcular_conteo_y_porcentaje_2(df, variables, 'Complain'))
+    
+    variable_categorica = st.selectbox("Selecciona una categoría", options=["Age_Group", "Marital_Status", "Education"])
+    complain_counts = df.groupby(variable_categorica)['Complain'].value_counts().unstack().fillna(0)
+    complain_counts.columns = ['0', '1']
+
+    complain_percentages = complain_counts.div(complain_counts.sum(axis=1), axis=0) * 100
+    complain_percentages = complain_percentages.round(2).astype(str) + '%'
+    complain_percentages.columns = ['% 0', '% 1']
+
+    complain_table = pd.concat([complain_counts, complain_percentages], axis=1)
+
+    st.dataframe(complain_table)
+
+    st.markdown("""
+<div style="text-align: justify;">
+
+Se observa que el número de quejas de nuestros clientes es muy reducido en todas las categorías,
+con un número muy pequeño de quejas en cada una de ellas. 
+ </div>
+""", unsafe_allow_html=True)
 
     st.markdown("""
 <div style="text-align: justify;">
@@ -482,7 +486,7 @@ Para profundizar en el análisis del consumo de nuestros clientes, comenzaremos 
  </div>
 """, unsafe_allow_html=True) 
     
-    productos = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+    productos = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts']
     fig, ax = plt.subplots(figsize=(7, 5), dpi=200)
     utils_frontend.mostrar_acumulado(df,productos,ax)
     fig.tight_layout()
@@ -501,7 +505,7 @@ con cualquier variable categórica que divida a nuestros clientes según sus car
     variable_categorica = st.selectbox("Selecciona la variable categórica",
                                    options=["Age_Group", "Marital_Status", "Education"])
     producto = st.selectbox("Selecciona un producto",
-                        options=['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds'])  
+                        options=['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts'])  
 
     col1, col2 = st.columns(2)
 
