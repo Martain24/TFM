@@ -5,7 +5,7 @@ from datetime import datetime
 from scipy.stats import zscore
 import seaborn as sns
 sns.set_style("whitegrid")
-from ... import utils_frontend
+import utils_frontend
 
 def descripcion_del_proyecto():
     st.markdown("""

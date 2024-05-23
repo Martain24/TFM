@@ -1,5 +1,5 @@
 import streamlit as st 
-from .proyectos import project_logistic_test 
+from .proyectos import project_logistic_test
 from .proyectos import project_prediccion_consumo
 
 
