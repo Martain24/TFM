@@ -19,5 +19,5 @@ elif seleccion == "Inicio Sesión":
     inicio_sesion()
 elif seleccion == "Proyectos":
     proyectos()
-elif seleccion == "Información del ususario":
+elif seleccion == "Información del usuario":
     user()

@@ -42,6 +42,7 @@ class PredictionOutput(BaseModel):
     ml_model: MlModel      # Información del artículo asociado a la predicción
     prediction_input: dict
     prediction_output: dict
+    created_at: datetime
 
     class Config:
         from_attributes = True
