@@ -19,9 +19,9 @@ def get_comments(limit:int = 10, db:Session = Depends(database.get_db)):
 @router.post("/", response_model=schemas.CommentOutput)
 def create_comment(new_comment:schemas.CommentInput, db:Session = Depends(database.get_db),
                     current_user=Depends(utils.get_current_user)):
-    if db.query(models.Articles).filter(models.Articles.id == new_comment.article_id).first() == None:
+    if db.query(models.Predictions).filter(models.Predictions.id == new_comment.prediction_id).first() == None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail=f"Yo cannot comment on an article that does not exists")
+                            detail=f"Yo cannot comment on a prediction that does not exist")
     new_comment = new_comment.model_dump()
     new_comment["user_id"] = current_user.id
     new_comment = models.Comments(**new_comment)

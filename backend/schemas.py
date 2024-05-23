@@ -37,6 +37,7 @@ class PredictionInput(BaseModel):
 
 # Definición de la clase Pydantic para la salida de predicciones
 class PredictionOutput(BaseModel):
+    id: int
     user: UserOutput      # Información del usuario asociado a la predicción
     ml_model: MlModel      # Información del artículo asociado a la predicción
     prediction_input: dict
@@ -48,7 +49,7 @@ class PredictionOutput(BaseModel):
 # Definición de la clase Pydantic para la entrada de comentarios
 class CommentInput(BaseModel):
     content: str          # Contenido del comentario
-    mlmodel_id: int
+    prediction_id: int
 
 
 # Definición de la clase Pydantic para la salida de comentarios
@@ -56,7 +57,7 @@ class CommentOutput(BaseModel):
     id: int
     user: UserOutput      # Información del usuario que realizó el comentario
     content: str          # Contenido del comentario
-    ml_model: MlModel      # Información del artículo al que pertenece el comentario
+    prediction: PredictionOutput      # Información del artículo al que pertenece el comentario
     created_at: datetime  # Fecha y hora de creación del comentario
 
     class Config:

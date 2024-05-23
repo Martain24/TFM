@@ -48,8 +48,8 @@ class Comments(Base):
     content = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    mlmodel_id = Column(Integer, ForeignKey("ml_models.id", ondelete="CASCADE"), nullable=False)
+    prediction_id = Column(Integer, ForeignKey("predictions.id", ondelete="CASCADE"), nullable=False)
 
     # Relacionamos con Users y Articles para obtener infor más completa al hacer la query
     user = relationship("Users")
-    ml_model = relationship("MlModels")
+    prediction = relationship("Predictions")
