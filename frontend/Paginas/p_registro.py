@@ -27,7 +27,7 @@ el formulario de más abajo y clicka en el botón *confirmar cuenta*.
     if st.button("Registrarse"):
         response = requests.post(url=f"{URL_BACKEND}users", json=json_registrarse)
 
-        if response.status_code==200:
+        if response.status_code==201:
             st.success("Registro realizado exitosamente. Correo con token de confirmación enviado.")
     
         elif response.status_code != 500:
@@ -35,3 +35,19 @@ el formulario de más abajo y clicka en el botón *confirmar cuenta*.
 
         else:
             st.warning("¡Ha ocurrido un error inesperado!")
+    st.markdown("""
+<div style="text-align: justify;">
+
+## Confirmación del usuario
+Pega aquí el token que recibiste en el correo para confirmar tu cuenta.
+Después podrás iniciar sesión y disfrutar de la página web.  
+</div>
+""", unsafe_allow_html=True)
+    user_token = st.text_input("Pega aquí tu token de confirmación", type="password")
+    if st.button("Confirmar cuenta"):
+        headers = {"Authorization": f"bearer {user_token}"}
+        response_verify = requests.put(url=f"{URL_BACKEND}users", headers=headers)
+        if response_verify.status_code == 200:
+            st.success("Tu cuenta ha sido confirmada con éxito. ¡Inicia sesión para usar la web!")
+        else:
+            st.warning("Ha habido un error inesperado")
