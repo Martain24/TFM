@@ -12,9 +12,9 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[schemas.CommentOutput])
-def get_comments(limit:int = 10, db:Session = Depends(database.get_db)):
-    comments = db.query(models.Comments).order_by(func.random()).limit(limit).all()
-    return comments
+def get_user_comments(db:Session = Depends(database.get_db), current_user=Depends(utils.get_current_user)):
+    user_comments = db.query(models.Comments).filter(models.Comments.user_id==current_user.id).all()
+    return user_comments
 
 @router.post("/", response_model=schemas.CommentOutput)
 def create_comment(new_comment:schemas.CommentInput, db:Session = Depends(database.get_db),
