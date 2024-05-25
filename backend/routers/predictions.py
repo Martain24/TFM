@@ -1,5 +1,5 @@
 from .. import models, schemas, database, utils
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
 import pandas as pd
 from typing import List
@@ -39,3 +39,17 @@ def obtain_user_predictions(current_user=Depends(utils.get_current_user),
                             db:Session = Depends(database.get_db)):
     user_predictions = db.query(models.Predictions).filter(models.Predictions.user_id == current_user.id).all()
     return user_predictions
+
+@router.delete("/{prediction_id}")
+def delete_prediction(prediction_id:int, current_user=Depends(utils.get_current_user),
+                      db:Session = Depends(database.get_db)):
+    pred_to_delete = db.query(models.Predictions).filter(models.Predictions.id == prediction_id)
+    if pred_to_delete.first()==None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"There does not exists a prediction with (id = {prediction_id}).")
+    if pred_to_delete.first().user_id!=current_user.id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="You cannot delete a comment that is not yours.")
+    pred_to_delete.delete(synchronize_session=False)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

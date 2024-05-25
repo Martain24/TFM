@@ -31,7 +31,7 @@ def create_comment(new_comment:schemas.CommentInput, db:Session = Depends(databa
     return new_comment
 
 
-@router.delete("/")
+@router.delete("/{id_comment}")
 def delete_comment(id_comment: int, db: Session = Depends(database.get_db),
                    current_user=Depends(utils.get_current_user)):
     #USUARIOS VIP PUEDEN ELIMINAR CUALQUIER COMENTARIO
