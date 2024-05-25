@@ -427,21 +427,56 @@ def prediccion_unica():
 
 def prediccion_excel():
 
-    # Option to upload CSV file
-    st.subheader("Cargar archivo CSV para realizar la predicción:")
-    uploaded_file = st.file_uploader("Selecciona un archivo CSV", type=["csv"])
-    if uploaded_file is not None:
-        try:
-            # Read the uploaded CSV file
-            df = pd.read_csv(uploaded_file)
-            
-            # Check if all necessary columns are present
-            expected_columns = ["Age", "Education", "Marital_Status", "Income", "Kidhome", "Teenhome", "Year_Customer_Entered", "Recency", "Complain"]
-            if not all(column in df.columns for column in expected_columns):
-                st.error("El archivo CSV no contiene todas las columnas necesarias.")
-                return
-        except Exception as e:
-            st.error(f"Error occurred while processing file: {e}")
+    st.markdown("""
+## Predicción excel 
+En esta sección podrás subir un excel para obtener una predicción masiva.
+Cada columna del excel tiene que representar una variable input del modelo. 
+En concreto, el archivo tiene que tener una estructura como esta
+""")        
+    # Crear un DataFrame de ejemplo
+    df_plantilla = pd.DataFrame({
+        "Age": [67, 70, 59, 40, 43],
+        "Education": ["Graduation", "Graduation", "Graduation", "Graduation", "PhD"],
+        "Marital_Status": ["Single", "Single", "Together", "Together", "Married"],
+        "Income": [58138.0, 46344.0, 71613.0, 26646.0, 58293.0],
+        "Kidhome": [0, 1, 0, 1, 1],
+        "Teenhome": [0, 1, 0, 0, 0],
+        "Dt_Customer": ['04-09-2012', '08-03-2014', '21-08-2013', '10-02-2014', '19-01-2014'],
+        "Recency": [58, 38, 26, 26, 94],
+        "Complain": [0, 0, 1, 0, 0]
+    })
+    
+    # Mostrar el DataFrame de ejemplo
+    st.dataframe(df_plantilla)
+
+    excel_upload = st.file_uploader("Elige un archivo Excel")
+    if st.button("Make Prediction"):
+            try:
+                df_pred = pd.read_excel(excel_upload, thousands=',')
+                if "Unnamed: 0" in df_pred.columns:
+                    df_pred = df_pred.drop("Unnamed: 0", axis="columns")
+                st.dataframe(df_pred)
+
+            except ValueError:
+                df_pred = pd.read_csv(excel_upload)
+                if "Unnamed: 0" in df_pred.columns:
+                    df_pred = df_pred.drop("Unnamed: 0", axis="columns")
+                st.dataframe(df_pred)
+            except:
+                st.warning("Archivo no válido")
+
+            df_pred.columns = [col.lower() for col in df_pred.columns]
+            df_plantilla.columns = [col.lower() for col in df_plantilla.columns]
+
+            if set(df_pred.columns) != set(df_plantilla.columns):
+                st.warning("El excel tiene que tener las columnas en el mismo formato que la plantilla")
+            df_pred = df_pred[df_plantilla.columns]
+            dtype_correct = True
+            for col in df_plantilla:
+                if str(df_plantilla[col].dtype) != str(df_pred[col].dtype):
+                    st.warning(f"La columna {col} no está en el formato requerido.")
+                    dtype_correct = False 
+                    break 
 
 def prediccion():
     indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "Predicción única", "Predicción Excel"])
