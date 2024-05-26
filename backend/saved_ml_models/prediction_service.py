@@ -3,7 +3,8 @@ from . import preprocessing_functions
 
 models_map = {
     "logistic_test_model": preprocessing_functions.make_prediction_logistic_test_model,
-    "name_of_model": preprocessing_functions.make_prediction_name_of_model
+    "best_model_fish": preprocessing_functions.make_prediction_best_model_fish
+    #"name_of_model": preprocessing_functions.make_prediction_name_of_model
 }
 
 def try_model(filename_of_model):

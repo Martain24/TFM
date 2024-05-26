@@ -20,12 +20,12 @@ def obtain_prediction(filename_of_model: str, input_data:dict, current_user=Depe
     if ml_model == None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="There is not such model inside the database")
-    prediction = prediction_service.run_prediction(filename_of_model=filename_of_model, input_data=input_data)
+    new_input_data, predictions = prediction_service.run_prediction(filename_of_model=filename_of_model, input_data=input_data)
     prediction_output = {
         "user_id": user_id,
         "mlmodel_id": ml_model.id,
-        "prediction_input": input_data,
-        "prediction_output": prediction
+        "prediction_input": new_input_data,
+        "prediction_output": predictions
     }
     new_prediction = models.Predictions(**prediction_output)
     db.add(new_prediction)

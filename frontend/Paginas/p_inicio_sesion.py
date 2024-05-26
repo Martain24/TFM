@@ -26,7 +26,5 @@ al correo para que puedas hacerlo desde la página *Registro*.
             st.success("Sesión iniciada con éxito")
             st.session_state.token = f"{response.json()['token_type']} {response.json()['access_token']}"
             st.session_state.correo = correo
-        elif response.status_code == 405:
-            st.warning("Aún no estás confirmado. Se te ha enviado un token a tu correo.")
         else:
-            st.warning("Ha habido un error inesperado.")
+            st.warning(response.json()["detail"])

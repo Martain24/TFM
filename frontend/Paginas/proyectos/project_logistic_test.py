@@ -3,7 +3,7 @@ import requests
 URL_BACKEND = "http://127.0.0.1:8000/"
 import pandas as pd
 def logistic_test():
-    indice = st.radio("¿Qué quieres ver aquí?", options=["Descripción del proyecto", "Predicción única", "Predicción Excel"])
+    indice = st.radio("¿Qué quieres ver aquí?", options=["Descripción del proyecto", "Predicción única", "Predicción Excel", "Predicción pescado"])
     if indice == "Descripción del proyecto":
         st.markdown("""
 ## Regresión logística para hacer pruebas
@@ -95,3 +95,7 @@ En concreto, el archivo tiene que tener una estructura como esta
 
                 st.markdown("Aquí tienes tu DataFrame con la predicción")
                 st.dataframe(df_pred)
+    elif indice == "Predicción pescado":
+        age = st.slider("Edad del individuo.", value=30,
+                        min_value=20, max_value=65, step=1)
+        
