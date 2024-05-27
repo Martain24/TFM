@@ -3,8 +3,11 @@ from . import preprocessing_functions
 
 models_map = {
     "logistic_test_model": preprocessing_functions.make_prediction_logistic_test_model,
-    "best_model_fish": preprocessing_functions.make_prediction_best_model_fish
-    #"name_of_model": preprocessing_functions.make_prediction_name_of_model
+    "best_model_fish": preprocessing_functions.make_prediction_best_model_quantity,
+    "best_model_fruits": preprocessing_functions.make_prediction_best_model_quantity,
+    "best_model_meat": preprocessing_functions.make_prediction_best_model_quantity,
+    "best_model_sweet": preprocessing_functions.make_prediction_best_model_quantity,
+    "best_model_wines": preprocessing_functions.make_prediction_best_model_quantity
 }
 
 def try_model(filename_of_model):
@@ -22,5 +25,5 @@ def get_model(filename_of_model):
 
 def run_prediction(filename_of_model, input_data):
     model = get_model(filename_of_model)
-    prediction = model(input_data)
+    prediction = model(input_data, filename_of_model=filename_of_model)
     return prediction

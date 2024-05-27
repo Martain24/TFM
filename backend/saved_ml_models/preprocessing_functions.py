@@ -19,12 +19,12 @@ class LogisticTestModel(BaseModel):
     class Config:
         from_attributes = True
 
-def make_prediction_logistic_test_model(input_data:dict):
+def make_prediction_logistic_test_model(input_data:dict, filename_of_model):
     predictions = {}
+    model = joblib.load(os.path.join(os.path.dirname(__file__), "models_files", f"{filename_of_model}.sav"))
     for index in input_data.keys():
         data = LogisticTestModel(**input_data[index])
         input_data[index] = data.model_dump()
-        model = joblib.load(os.path.join(os.path.dirname(__file__), "models_files", "logistic_test_model.sav"))
         model_input = {key: 0 for key in model.feature_names_in_}
         model_input["Age"] = data.age
         model_input["Work_Experience"] = data.work_experience
@@ -65,11 +65,13 @@ def make_prediction_logistic_test_model(input_data:dict):
 
 
 
-####################
-########## best_model_fish ##########
-####################
 
-class BestModelFish(BaseModel):
+    
+######
+#### BestModelProductQuantity ####
+#####
+
+class BestModelProductQuantity(BaseModel):
     age: int 
     education: str
     marital_status: str 
@@ -80,17 +82,18 @@ class BestModelFish(BaseModel):
     recency: int 
     complain: int
 
-def make_prediction_best_model_fish(input_data:dict):
+def make_prediction_best_model_quantity(input_data:dict, filename_of_model):
     predictions = {}
-    model = joblib.load(os.path.join(os.path.dirname(__file__), "models_files", "best_model_fish.sav"))
+    model = joblib.load(os.path.join(os.path.dirname(__file__), "models_files", f"{filename_of_model}.sav"))
     for index in input_data.keys():
         row = pd.Series(input_data[index])
         row.index = [i.lower() for i in row.index]
         row = dict(row)
         try:
-            row = BestModelFish(**row)
+            row = BestModelProductQuantity(**row)
             input_data[index] = row.model_dump()
         except Exception as e:
+            print(e)
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                 detail="Incorrect format of dict")
         model_input = {key: 0 for key in model.feature_names_in_}
@@ -121,6 +124,6 @@ def make_prediction_best_model_fish(input_data:dict):
                 model_input[key] = False
         df_input = pd.DataFrame(model_input, index=[0])[model.feature_names_in_]
         prediction = model.predict(df_input)[0]
-        predictions[index] = {f"predicted_MntFishProducts": str(prediction)}
+        predictions[index] = {f"predicted_quantity": str(prediction)}
     return input_data, predictions
-    
+
