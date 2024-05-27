@@ -3,7 +3,7 @@ import requests
 URL_BACKEND = "http://127.0.0.1:8000/"
 import pandas as pd
 def logistic_test():
-    indice = st.radio("¿Qué quieres ver aquí?", options=["Descripción del proyecto", "Predicción única", "Predicción Excel", "Predicción pescado"])
+    indice = st.radio("¿Qué quieres ver aquí?", options=["Descripción del proyecto", "Predicción única", "Predicción Excel", "Predicción cantidad"])
     if indice == "Descripción del proyecto":
         st.markdown("""
 ## Regresión logística para hacer pruebas
@@ -95,7 +95,50 @@ En concreto, el archivo tiene que tener una estructura como esta
 
                 st.markdown("Aquí tienes tu DataFrame con la predicción")
                 st.dataframe(df_pred)
-    elif indice == "Predicción pescado":
+    elif indice == "Predicción cantidad":
+        if "input_data_cantidad" not in st.session_state:
+            st.session_state.input_data_cantidad = []
         age = st.slider("Edad del individuo.", value=30,
                         min_value=20, max_value=65, step=1)
+        education = st.selectbox("Education", options=["Graduation", "PhD",
+                                                       "Master", "2n Cycle", "Basic"])
+        marital_status = st.selectbox("Marital Status",
+                                      options=["Single", "Together", "Married", "Widow", "Divorced"])
+        income = st.number_input(label="Income", min_value=5000)
+        kidhome = st.number_input(label="kidhome", min_value=0)
+        teenhome = st.number_input(label="Teenhome", min_value=0)
+        year_customer_entered = st.number_input(label="Year customer entered",
+                                                min_value=2010, max_value=2020)
+        recency = st.number_input(label="Recency", min_value=1, max_value=200)
+        complain = st.selectbox(label="Complain", options=["0", "1"])
+        if st.button(label="Save info customer"):
+            row = {
+                "age": age, "education": education, "marital_status": marital_status,
+                "income": income, "kidhome": kidhome, "teenhome": teenhome, 
+                "year_customer_entered": str(year_customer_entered), "recency": recency,
+                "complain": int(complain)
+            }
+            st.session_state.input_data_cantidad.append(row)
+        
+        if len(st.session_state.input_data_cantidad)!=0:
+            st.dataframe(pd.DataFrame(st.session_state.input_data_cantidad))
+        if st.button(label="Delete DataFrame", type="primary"):
+            st.session_state.input_data_cantidad = []
+        model_pred = st.selectbox("Escoge el modelo",
+                                  options=["best_model_fish",
+                                           "best_model_meat",
+                                           "best_model_sweet",
+                                           "best_model_wines"])
+        if st.button("Hacer predicción"):
+            if "token" not in st.session_state.keys():
+                 st.warning("Tienes que iniciar sesión")
+            else:
+                headers = {"Authorization": st.session_state.token}     
+                dict_input_data = {index: row for (index, row) in enumerate(st.session_state.input_data_cantidad)}
+                response = requests.post(f"{URL_BACKEND}predictions/{model_pred}",
+                                        headers=headers, json=dict_input_data)
+                st.write(response.json())
+
+
+
         
