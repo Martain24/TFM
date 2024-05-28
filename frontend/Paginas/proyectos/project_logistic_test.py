@@ -130,6 +130,7 @@ En concreto, el archivo tiene que tener una estructura como esta
             st.dataframe(pd.DataFrame(st.session_state.input_data_cantidad))
         if st.button(label="Delete DataFrame", type="primary"):
             st.session_state.input_data_cantidad = []
+            st.rerun()
         model_pred = st.selectbox("Escoge el modelo",
                                   options=["best_model_fish",
                                            "best_model_meat",
