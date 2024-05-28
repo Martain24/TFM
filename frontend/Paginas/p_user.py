@@ -56,7 +56,8 @@ def user():
         df_all = pd.DataFrame()
         for pred in dfs_pred.keys():
             df_all = pd.concat([df_all, dfs_pred[pred]])
-        st.dataframe(df_all.set_index("Fecha"))
+        if len(df_all) != 0:
+            st.dataframe(df_all.set_index("Fecha"))
     elif filter == "Cada una por separado":
         df_dates_id = pd.DataFrame()
         dates = pd.to_datetime(pd.Series(dfs_pred.keys()).apply(lambda x: x.split("_")[0]),
