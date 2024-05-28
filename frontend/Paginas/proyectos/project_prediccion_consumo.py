@@ -1007,8 +1007,90 @@ def prediccion_unica():
         if prediction is not None:
             st.write(f"Predicción realizada: {prediction}")
 
+def prediccion_excel():
+
+    st.markdown("""
+## Predicción excel 
+En esta sección podrás subir un excel para obtener una predicción masiva.
+Cada columna del excel tiene que representar una variable input del modelo. 
+En concreto, el archivo tiene que tener una estructura como esta
+""")        
+    # Crear un DataFrame de ejemplo
+    df_plantilla = pd.DataFrame({
+        "Age": [67, 70, 59, 40, 43],
+        "Education": ["Graduation", "Graduation", "Graduation", "Graduation", "PhD"],
+        "Marital_Status": ["Single", "Single", "Together", "Together", "Married"],
+        "Income": [58138.0, 46344.0, 71613.0, 26646.0, 58293.0],
+        "Kidhome": [0, 1, 0, 1, 1],
+        "Teenhome": [0, 1, 0, 0, 0],
+        "Dt_Customer": ['04-09-2012', '08-03-2014', '21-08-2013', '10-02-2014', '19-01-2014'],
+        "Recency": [58, 38, 26, 26, 94],
+        "Complain": [0, 0, 1, 0, 0]
+    })
+    
+    # Mostrar el DataFrame de ejemplo
+    st.dataframe(df_plantilla)
+
+    excel_upload = st.file_uploader("Elige un archivo Excel")
+    if st.button("Make Prediction"):
+            try:
+                df_pred = pd.read_excel(excel_upload, thousands=',')
+                if "Unnamed: 0" in df_pred.columns:
+                    df_pred = df_pred.drop("Unnamed: 0", axis="columns")
+                st.dataframe(df_pred)
+
+            except ValueError:
+                df_pred = pd.read_csv(excel_upload)
+                if "Unnamed: 0" in df_pred.columns:
+                    df_pred = df_pred.drop("Unnamed: 0", axis="columns")
+                st.dataframe(df_pred)
+            except:
+                st.warning("Archivo no válido")
+
+            
+            df_pred.columns = [col.lower() for col in df_pred.columns]
+            df_plantilla.columns = [col.lower() for col in df_plantilla.columns]
+
+            df_pred["income"] = df_pred["income"].apply(lambda x: float(x))
+
+
+            if set(df_pred.columns) != set(df_plantilla.columns):
+                st.warning("El excel tiene que tener las columnas en el mismo formato que la plantilla")
+            df_pred = df_pred[df_plantilla.columns]
+            dtype_correct = True
+            for col in df_plantilla:
+                if str(df_plantilla[col].dtype) != str(df_pred[col].dtype):
+                    st.warning(f"La columna {col} no está en el formato requerido.")
+                    dtype_correct = False 
+                    break 
+
+            df_pred["year_customer_entered"] = df_pred["dt_customer"].apply(lambda x: str(x).split("-")[2])
+
+            if dtype_correct:
+                input_data = {}
+                def save_data(row):
+                    data = {"age": row["age"],"education": row["education"],"marital_Status": row["marital_status"],
+                        "income": row["income"],"kidhome": row["kidhome"],"teenhome": row["teenhome"],
+                        "year_customer_entered": row["year_customer_entered"],"recency": row["recency"], "complain": row["complain"]}
+                    input_data[row.name] = data
+                df_pred.apply(save_data, axis=1)
+                if "token" not in st.session_state.keys():
+                    st.warning("Tienes que iniciar sesión")
+                else:
+                    headers = {"Authorization": st.session_state.token}
+                    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fish", json=input_data, headers=headers)
+                    if response.status_code == 200:
+                        def create_predicted_amount(row):
+                            return response.json()["prediction_output"][f"{row.name}"]["predicted_quantity"]
+                        df_pred["predicted_salary"] = df_pred.apply(create_predicted_amount, axis=1)
+                    else:
+                        st.error(f"Error al obtener las predicciones del servidor {response.status_code}")
+
+                st.markdown("Aquí tienes tu DataFrame con la predicción")
+                st.dataframe(df_pred.drop(columns=["year_customer_entered"]))
+
 def prediccion_consumo():
-    indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "¿Quiéres entender tus datos?", "¿Quiéres realizar una predicción única?","Descripción del proyecto"])
+    indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "¿Quiéres entender tus datos?", "¿Quiéres realizar una predicción única?", "¿Quiéres realizar una predicción sobre un EXCEL?","Descripción del proyecto"])
     if indice=="Exploratory Data Analysis":
         exploratory_data_analysis()
     elif indice == "Descripción del proyecto":
@@ -1017,3 +1099,5 @@ def prediccion_consumo():
         run_eda()
     elif indice == "¿Quiéres realizar una predicción única?":
         prediccion_unica()
+    elif indice == "¿Quiéres realizar una predicción sobre un EXCEL?":
+        prediccion_excel()
