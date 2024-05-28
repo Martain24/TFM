@@ -26,7 +26,7 @@ def set_background(png_file):
         border-radius: 10px;
     }}
     .main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {{
-        color: #FFFFFF; /* Cambio del color del texto a blanco */
+        color: black; /* Cambio del color del texto a negro */
         margin-bottom: 20px; /* Aumento del espacio entre títulos y párrafos */
     }}
     .main p {{
