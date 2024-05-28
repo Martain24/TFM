@@ -98,19 +98,25 @@ En concreto, el archivo tiene que tener una estructura como esta
     elif indice == "Predicción cantidad":
         if "input_data_cantidad" not in st.session_state:
             st.session_state.input_data_cantidad = []
-        age = st.slider("Edad del individuo.", value=30,
-                        min_value=20, max_value=65, step=1)
-        education = st.selectbox("Education", options=["Graduation", "PhD",
-                                                       "Master", "2n Cycle", "Basic"])
-        marital_status = st.selectbox("Marital Status",
-                                      options=["Single", "Together", "Married", "Widow", "Divorced"])
-        income = st.number_input(label="Income", min_value=5000)
-        kidhome = st.number_input(label="kidhome", min_value=0)
-        teenhome = st.number_input(label="Teenhome", min_value=0)
-        year_customer_entered = st.number_input(label="Year customer entered",
-                                                min_value=2010, max_value=2020)
-        recency = st.number_input(label="Recency", min_value=1, max_value=200)
-        complain = st.selectbox(label="Complain", options=["0", "1"])
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            age = st.number_input("Edad del individuo.", min_value=20,
+                                  max_value=80)
+            education = st.selectbox("Education", options=["Graduation", "PhD",
+                                                        "Master", "2n Cycle", "Basic"])
+            marital_status = st.selectbox("Marital Status",
+                                        options=["Single", "Together", "Married", "Widow", "Divorced"])
+        with col2: 
+            income = st.number_input(label="Income", min_value=5000)
+            kidhome = st.number_input(label="kidhome", min_value=0)
+            teenhome = st.number_input(label="Teenhome", min_value=0)
+            
+        with col3:
+            recency = st.number_input(label="Recency", min_value=1, max_value=200)
+            year_customer_entered = st.number_input(label="Year customer entered",
+                                                    min_value=2010, max_value=2020)
+            
+            complain = st.selectbox(label="Complain", options=["0", "1"])
         if st.button(label="Save info customer"):
             row = {
                 "age": age, "education": education, "marital_status": marital_status,
@@ -137,7 +143,10 @@ En concreto, el archivo tiene que tener una estructura como esta
                 dict_input_data = {index: row for (index, row) in enumerate(st.session_state.input_data_cantidad)}
                 response = requests.post(f"{URL_BACKEND}predictions/{model_pred}",
                                         headers=headers, json=dict_input_data)
-                st.write(response.json())
+                if response.status_code == 401:
+                    st.warning("La sesión ha caducado")
+                else:
+                    st.write(response.json())
 
 
 
