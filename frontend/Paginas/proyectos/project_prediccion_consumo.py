@@ -512,7 +512,7 @@ con cualquier variable categórica que divida a nuestros clientes según sus car
     with col1:
         filtered_means = df.groupby(variable_categorica)[producto].mean()
         st.dataframe(filtered_means)
-
+#print("hola, gracias por leer hasta aquí :)")
     with col2:
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.barplot(x=filtered_means.index, y=filtered_means.values, ax=ax)

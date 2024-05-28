@@ -9,10 +9,10 @@ from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 
 # Configuración de la página
-st.set_page_config(layout="wide")
+#st.set_page_config(layout="wide")
 
 # Título de la aplicación
-st.title("Mi Aplicación con Streamlit")
+#st.title("Mi Aplicación con Streamlit")
 
 # Function to save matplotlib figure to a BytesIO object
 def save_fig_to_bytesio(fig):
