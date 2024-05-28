@@ -75,7 +75,7 @@ class BestModelProductQuantity(BaseModel):
     age: int 
     education: str
     marital_status: str 
-    income: int 
+    income: float 
     kidhome: int 
     teenhome: int 
     year_customer_entered: str 

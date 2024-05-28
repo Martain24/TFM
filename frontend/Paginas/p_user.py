@@ -56,7 +56,9 @@ def user():
         df_all = pd.DataFrame()
         for pred in dfs_pred.keys():
             df_all = pd.concat([df_all, dfs_pred[pred]])
-        if len(df_all) != 0:
+        if len(df_all)==0:
+            st.warning("No has hecho ninguna predicción con este modelo.")
+        else:
             st.dataframe(df_all.set_index("Fecha"))
     elif filter == "Cada una por separado":
         df_dates_id = pd.DataFrame()
@@ -74,27 +76,30 @@ def user():
         elif orden_fecha == "De la más antigua a la más reciente":
             dates = df_dates_id["Fecha"].apply(lambda x: x.strftime("%d-%m-%YT%H:%M:%S"))
             ids = df_dates_id["id"]
-        for date,id in zip(dates, ids):
-            df_pred = dfs_pred[f"{date}_{id}"].set_index("Fecha")
-            fecha, hora = date.split("T")[0], date.split("T")[1]
-            st.markdown("---")
-            st.markdown(f"##### Predicción del {fecha} a las {hora}")
-            st.dataframe(df_pred)
-            if st.button("Borrar predicción", key=f"{date}_{id}_borrar_pred", type="primary"):
-                requests.delete(url=f"{URL_BACKEND}predictions/{id}", headers=headers)
-                st.rerun()
-            with st.expander("Ver comentarios sobre la predicción"):
-                comments_pred = [comment for comment in user_comments if str(comment["prediction"]["id"])==str(id)]
-                for c in comments_pred:
-                    st.markdown(f"""💬 {c['content']} ({'-'.join(c['created_at'].split('T')[0].split('-')[-1::-1])} a las {c['created_at'].split('T')[1].split('.')[0]})""")
-                content_new_comment = st.text_area(label="Añade un comentario para esta predicción", key=id)
-                new_comment = {"content": content_new_comment, "prediction_id": id}
-                if st.button("Subir comentario", key=f"{date}_{id}"):
-                    requests.post(url=f"{URL_BACKEND}comments", json=new_comment, headers=headers)
+
+        if len(dates) == 0:
+            st.warning("No has hecho ninguna predicción con este modelo.")
+        else:
+            for date,id in zip(dates, ids):
+                df_pred = dfs_pred[f"{date}_{id}"].set_index("Fecha")
+                fecha, hora = date.split("T")[0], date.split("T")[1]
+                st.markdown(f"##### Predicción del {fecha} a las {hora}")
+                st.dataframe(df_pred)
+                if st.button("Borrar predicción", key=f"{date}_{id}_borrar_pred", type="primary"):
+                    requests.delete(url=f"{URL_BACKEND}predictions/{id}", headers=headers)
                     st.rerun()
-                if st.button("Borrar comentarios anteriores", type="primary", key=f"{date}_{id}_borrar"):
-                    print(len(comments_pred))
+                with st.expander("Ver comentarios sobre la predicción"):
+                    comments_pred = [comment for comment in user_comments if str(comment["prediction"]["id"])==str(id)]
                     for c in comments_pred:
-                        requests.delete(url=f"{URL_BACKEND}comments/{c['id']}", headers=headers)
-                    st.rerun()
+                        st.markdown(f"""💬 {c['content']} ({'-'.join(c['created_at'].split('T')[0].split('-')[-1::-1])} a las {c['created_at'].split('T')[1].split('.')[0]})""")
+                    content_new_comment = st.text_area(label="Añade un comentario para esta predicción", key=id)
+                    new_comment = {"content": content_new_comment, "prediction_id": id}
+                    if st.button("Subir comentario", key=f"{date}_{id}"):
+                        requests.post(url=f"{URL_BACKEND}comments", json=new_comment, headers=headers)
+                        st.rerun()
+                    if st.button("Borrar comentarios anteriores", type="primary", key=f"{date}_{id}_borrar"):
+                        print(len(comments_pred))
+                        for c in comments_pred:
+                            requests.delete(url=f"{URL_BACKEND}comments/{c['id']}", headers=headers)
+                        st.rerun()
     
