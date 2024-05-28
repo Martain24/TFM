@@ -269,85 +269,81 @@ def run_eda():
     else:
         st.warning("Por favor, sube un archivo CSV para continuar.")
 
+URL_BACKEND = "http://127.0.0.1:8000/"
+
 def make_prediction_vino(input_data):
-    # Define the API endpoint
-    api_endpoint = "https://your-api-endpoint.com/predictions/vino"
-
-    # Make the POST request to the API
-    response = requests.post(api_endpoint, json=input_data)
-
     # Check if the request was successful
-    if response.status_code == 200:
-        # Extract the prediction result from the response
-        prediction = response.json()["prediction"]
-        return prediction
+    if "token" not in st.session_state.keys():
+            st.warning("Tienes que iniciar sesión")
     else:
-        st.error("Error occurred while making prediction for Vino. Please try again.")
-        return None
+            headers = {"Authorization": st.session_state.token}
+            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_vino", json=input_data, headers=headers)
+            # Obtener el valor del JSON y convertirlo a un número de punto flotante
+            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
+
+            # Redondear el valor a un número entero
+            rounded_prediction = round(predicted_quantity)
+
+            st.success(f"Se espera que la cantidad de vino comprada por este individuo es de : {rounded_prediction}")
 
 def make_prediction_fish(input_data):
-    # Define the API endpoint
-    api_endpoint = "https://your-api-endpoint.com/fish/predict"
-
-    # Make the POST request to the API
-    response = requests.post(api_endpoint, json=input_data)
-
     # Check if the request was successful
-    if response.status_code == 200:
-        # Extract the prediction result from the response
-        prediction = response.json()["prediction"]
-        return prediction
+    if "token" not in st.session_state.keys():
+            st.warning("Tienes que iniciar sesión")
     else:
-        st.error("Error occurred while making prediction for Fish. Please try again.")
-        return None
+            headers = {"Authorization": st.session_state.token}
+            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fish", json=input_data, headers=headers)
+            # Obtener el valor del JSON y convertirlo a un número de punto flotante
+            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
+
+            # Redondear el valor a un número entero
+            rounded_prediction = round(predicted_quantity)
+
+            st.success(f"Se espera que la cantidad de pescado comprada por este individuo es de : {rounded_prediction}")
 
 def make_prediction_meat(input_data):
-    # Define the API endpoint
-    api_endpoint = "https://your-api-endpoint.com/meat/predict"
-
-    # Make the POST request to the API
-    response = requests.post(api_endpoint, json=input_data)
-
     # Check if the request was successful
-    if response.status_code == 200:
-        # Extract the prediction result from the response
-        prediction = response.json()["prediction"]
-        return prediction
+    if "token" not in st.session_state.keys():
+            st.warning("Tienes que iniciar sesión")
     else:
-        st.error("Error occurred while making prediction for Meat. Please try again.")
-        return None
+            headers = {"Authorization": st.session_state.token}
+            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_meat", json=input_data, headers=headers)
+            # Obtener el valor del JSON y convertirlo a un número de punto flotante
+            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
+
+            # Redondear el valor a un número entero
+            rounded_prediction = round(predicted_quantity)
+
+            st.success(f"Se espera que la cantidad de carne comprada por este individuo es de : {rounded_prediction}")
 
 def make_prediction_sweet(input_data):
-    # Define the API endpoint
-    api_endpoint = "https://your-api-endpoint.com/sweet/predict"
-
-    # Make the POST request to the API
-    response = requests.post(api_endpoint, json=input_data)
-
     # Check if the request was successful
-    if response.status_code == 200:
-        # Extract the prediction result from the response
-        prediction = response.json()["prediction"]
-        return prediction
+    if "token" not in st.session_state.keys():
+            st.warning("Tienes que iniciar sesión")
     else:
-        st.error("Error occurred while making prediction for Sweet. Please try again.")
-        return None
+            headers = {"Authorization": st.session_state.token}
+            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_sweet", json=input_data, headers=headers)
+            # Obtener el valor del JSON y convertirlo a un número de punto flotante
+            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
 
+            # Redondear el valor a un número entero
+            rounded_prediction = round(predicted_quantity)
+
+            st.success(f"Se espera que la cantidad de dulces comprada por este individuo es de : {rounded_prediction}")
 def make_prediction_fruit(input_data):
-    # Define the API endpoint
-    api_endpoint = "https://your-api-endpoint.com/fruit/predict"
-
-    # Make the POST request to the API
-    response = requests.post(api_endpoint, json=input_data)
-
     # Check if the request was successful
-    if response.status_code == 200:
-        # Extract the prediction result from the response
-        prediction = response.json()["prediction"]
-        return prediction
+    if "token" not in st.session_state.keys():
+            st.warning("Tienes que iniciar sesión")
     else:
-        st.error("Error occurred while making prediction for Fruit. Please try again.")
-        return None
+            headers = {"Authorization": st.session_state.token}
+            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fruit", json=input_data, headers=headers)
+            # Obtener el valor del JSON y convertirlo a un número de punto flotante
+            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
+
+            # Redondear el valor a un número entero
+            rounded_prediction = round(predicted_quantity)
+
+            st.success(f"Se espera que la cantidad de fruta comprada por este individuo es de : {rounded_prediction}")
 
 
 def prediccion_unica():
@@ -386,7 +382,7 @@ def prediccion_unica():
         st.error("Por favor, introduce un número válido para el ingreso anual.")
     kidhome = st.number_input("Hijos en Casa", min_value=0, max_value=10, value=0)
     teenhome = st.number_input("Adolescentes en Casa", min_value=0, max_value=10, value=0)
-    year_customer_entered = st.number_input("Año de Ingreso del Cliente", min_value=1900, max_value=2025, value=2010)
+    year_customer_entered = st.text_input("Año de Ingreso del Cliente", "2013")
     recency_str = st.text_input("Recencia (en días)", "30")
     try:
         recency = int(recency_str)
@@ -397,8 +393,8 @@ def prediccion_unica():
     # Button for making a single prediction
     if st.button("Realizar Predicción"):
         # Prepare input data for prediction
-        input_data = {
-            "age": age,
+        input_data = { 
+            1: {"age": age,
             "education": education,
             "marital_status": marital_status,
             "income": income,
@@ -406,20 +402,20 @@ def prediccion_unica():
             "teenhome": teenhome,
             "year_customer_entered": year_customer_entered,
             "recency": recency,
-            "complain": 1 if complain == "Sí" else 0
+            "complain": 1 if complain == "Sí" else 0}
         }
         
         # Make prediction
         if option == "Vino":
-            prediction = make_prediction_vino(input_data)()
+            prediction = make_prediction_vino(input_data)
         elif option == "Fruit":
-            prediction = make_prediction_fruit(input_data)()()
+            prediction = make_prediction_fruit(input_data)
         elif option == "Meat":
-            prediction = make_prediction_meat(input_data)()()
+            prediction = make_prediction_meat(input_data)
         elif option == "Fish":
-            prediction = make_prediction_fish(input_data)()()
+            prediction = make_prediction_fish(input_data)
         elif option == "Sweet":
-            prediction = make_prediction_sweet(input_data)()()
+            prediction = make_prediction_sweet(input_data)
 
   
         if prediction is not None:
@@ -438,7 +434,7 @@ En concreto, el archivo tiene que tener una estructura como esta
         "Age": [67, 70, 59, 40, 43],
         "Education": ["Graduation", "Graduation", "Graduation", "Graduation", "PhD"],
         "Marital_Status": ["Single", "Single", "Together", "Together", "Married"],
-        "Income": [58138.0, 46344.0, 71613.0, 26646.0, 58293.0],
+        "Income": [58138.0, 46344.0, 71613.5, 26646.0, 58293.0],
         "Kidhome": [0, 1, 0, 1, 1],
         "Teenhome": [0, 1, 0, 0, 0],
         "Dt_Customer": ['04-09-2012', '08-03-2014', '21-08-2013', '10-02-2014', '19-01-2014'],
@@ -465,8 +461,12 @@ En concreto, el archivo tiene que tener una estructura como esta
             except:
                 st.warning("Archivo no válido")
 
+            
             df_pred.columns = [col.lower() for col in df_pred.columns]
             df_plantilla.columns = [col.lower() for col in df_plantilla.columns]
+
+            df_pred["income"] = df_pred["income"].apply(lambda x: float(x))
+
 
             if set(df_pred.columns) != set(df_plantilla.columns):
                 st.warning("El excel tiene que tener las columnas en el mismo formato que la plantilla")
@@ -477,6 +477,31 @@ En concreto, el archivo tiene que tener una estructura como esta
                     st.warning(f"La columna {col} no está en el formato requerido.")
                     dtype_correct = False 
                     break 
+
+            df_pred["year_customer_entered"] = df_pred["dt_customer"].apply(lambda x: str(x).split("-")[2])
+            
+            if dtype_correct:
+                input_data = {}
+                def save_data(row):
+                    data = {"age": row["age"],"education": row["education"],"marital_Status": row["marital_status"],
+                        "income": row["income"],"kidhome": row["kidhome"],"teenhome": row["teenhome"],
+                        "year_customer_entered": row["year_customer_entered"],"recency": row["recency"], "complain": row["complain"]}
+                    input_data[row.name] = data
+                df_pred.apply(save_data, axis=1)
+                if "token" not in st.session_state.keys():
+                    st.warning("Tienes que iniciar sesión")
+                else:
+                    headers = {"Authorization": st.session_state.token}
+                    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fish", json=input_data, headers=headers)
+                    if response.status_code == 200:
+                        def create_predicted_amount(row):
+                            return response.json()["prediction_output"][f"{row.name}"]["predicted_quantity"]
+                        df_pred["predicted_salary"] = df_pred.apply(create_predicted_amount, axis=1)
+                    else:
+                        st.error(f"Error al obtener las predicciones del servidor")
+
+                st.markdown("Aquí tienes tu DataFrame con la predicción")
+                st.dataframe(df_pred.drop(columns=["year_customer_entered"]))
 
 def prediccion():
     indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "Predicción única", "Predicción Excel"])
