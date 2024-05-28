@@ -15,7 +15,7 @@ def set_background(png_file):
         background-image: url("data:image/png;base64,{bin_str}");
         background-size: cover;
         background-position: center;
-        color: white;
+        color: black;
         padding: 10px;
         border-radius: 15px;
         font-family: 'Arial', sans-serif;
