@@ -1007,6 +1007,107 @@ def prediccion_unica():
         if prediction is not None:
             st.write(f"Predicción realizada: {prediction}")
 
+def excel_prediction_fish(input_data, df_pred ):
+    if "token" not in st.session_state.keys():
+        st.warning("Tienes que iniciar sesión")
+        return df_pred
+
+    headers = {"Authorization": st.session_state.token}
+    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_fish", json=input_data, headers=headers)
+    
+    if response.status_code == 200:
+        prediction_output = response.json()["prediction_output"]
+        
+        def create_predicted_amount(row):
+            return prediction_output[f"{row.name}"]["predicted_quantity"]
+        
+        df_pred["predicted_fish"] = df_pred.apply(create_predicted_amount, axis=1)
+    else:
+        st.error(f"Error al obtener las predicciones del servidor")
+    
+    return df_pred
+
+def excel_prediction_vino(input_data, df_pred ):
+    if "token" not in st.session_state.keys():
+        st.warning("Tienes que iniciar sesión")
+        return df_pred
+
+    headers = {"Authorization": st.session_state.token}
+    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_vino", json=input_data, headers=headers)
+    
+    if response.status_code == 200:
+        prediction_output = response.json()["prediction_output"]
+        
+        def create_predicted_amount(row):
+            return prediction_output[f"{row.name}"]["predicted_quantity"]
+        
+        df_pred["predicted_vino"] = df_pred.apply(create_predicted_amount, axis=1)
+    else:
+        st.error(f"Error al obtener las predicciones del servidor")
+    
+    return df_pred
+
+def excel_prediction_meat(input_data, df_pred ):
+    if "token" not in st.session_state.keys():
+        st.warning("Tienes que iniciar sesión")
+        return df_pred
+
+    headers = {"Authorization": st.session_state.token}
+    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_meat", json=input_data, headers=headers)
+    
+    if response.status_code == 200:
+        prediction_output = response.json()["prediction_output"]
+        
+        def create_predicted_amount(row):
+            return prediction_output[f"{row.name}"]["predicted_quantity"]
+        
+        df_pred["predicted_meat"] = df_pred.apply(create_predicted_amount, axis=1)
+    else:
+        st.error(f"Error al obtener las predicciones del servidor")
+    
+    return df_pred
+
+def excel_prediction_sweet(input_data, df_pred ):
+    if "token" not in st.session_state.keys():
+        st.warning("Tienes que iniciar sesión")
+        return df_pred
+
+    headers = {"Authorization": st.session_state.token}
+    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_sweet", json=input_data, headers=headers)
+    
+    if response.status_code == 200:
+        prediction_output = response.json()["prediction_output"]
+        
+        def create_predicted_amount(row):
+            return prediction_output[f"{row.name}"]["predicted_quantity"]
+        
+        df_pred["predicted_sweet"] = df_pred.apply(create_predicted_amount, axis=1)
+    else:
+        st.error(f"Error al obtener las predicciones del servidor")
+    
+    return df_pred
+
+def excel_prediction_fruit(input_data, df_pred ):
+    if "token" not in st.session_state.keys():
+        st.warning("Tienes que iniciar sesión")
+        return df_pred
+
+    headers = {"Authorization": st.session_state.token}
+    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_fruit", json=input_data, headers=headers)
+    
+    if response.status_code == 200:
+        prediction_output = response.json()["prediction_output"]
+        
+        def create_predicted_amount(row):
+            return prediction_output[f"{row.name}"]["predicted_quantity"]
+        
+        df_pred["predicted_fruit"] = df_pred.apply(create_predicted_amount, axis=1)
+    else:
+        st.error(f"Error al obtener las predicciones del servidor")
+    
+    return df_pred
+
+
 def prediccion_excel():
 
     st.markdown("""
@@ -1020,7 +1121,7 @@ En concreto, el archivo tiene que tener una estructura como esta
         "Age": [67, 70, 59, 40, 43],
         "Education": ["Graduation", "Graduation", "Graduation", "Graduation", "PhD"],
         "Marital_Status": ["Single", "Single", "Together", "Together", "Married"],
-        "Income": [58138.0, 46344.0, 71613.0, 26646.0, 58293.0],
+        "Income": [58138.0, 46344.0, 71613.5, 26646.0, 58293.0],
         "Kidhome": [0, 1, 0, 1, 1],
         "Teenhome": [0, 1, 0, 0, 0],
         "Dt_Customer": ['04-09-2012', '08-03-2014', '21-08-2013', '10-02-2014', '19-01-2014'],
@@ -1032,6 +1133,10 @@ En concreto, el archivo tiene que tener una estructura como esta
     st.dataframe(df_plantilla)
 
     excel_upload = st.file_uploader("Elige un archivo Excel")
+
+    # Place select box at the top of the page
+    option = st.selectbox("Selecciona una predicción", ["Vino", "Fruit", "Meat", "Fish", "Sweet"])
+
     if st.button("Make Prediction"):
             try:
                 df_pred = pd.read_excel(excel_upload, thousands=',')
@@ -1065,7 +1170,7 @@ En concreto, el archivo tiene que tener una estructura como esta
                     break 
 
             df_pred["year_customer_entered"] = df_pred["dt_customer"].apply(lambda x: str(x).split("-")[2])
-
+            
             if dtype_correct:
                 input_data = {}
                 def save_data(row):
@@ -1074,20 +1179,21 @@ En concreto, el archivo tiene que tener una estructura como esta
                         "year_customer_entered": row["year_customer_entered"],"recency": row["recency"], "complain": row["complain"]}
                     input_data[row.name] = data
                 df_pred.apply(save_data, axis=1)
-                if "token" not in st.session_state.keys():
-                    st.warning("Tienes que iniciar sesión")
-                else:
-                    headers = {"Authorization": st.session_state.token}
-                    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fish", json=input_data, headers=headers)
-                    if response.status_code == 200:
-                        def create_predicted_amount(row):
-                            return response.json()["prediction_output"][f"{row.name}"]["predicted_quantity"]
-                        df_pred["predicted_salary"] = df_pred.apply(create_predicted_amount, axis=1)
-                    else:
-                        st.error(f"Error al obtener las predicciones del servidor {response.status_code}")
+
+                if option == "Vino":
+                    df_pred = excel_prediction_fish(input_data, df_pred)
+                elif option == "Fruit":
+                    df_pred = excel_prediction_fruit(input_data, df_pred)
+                elif option == "Meat":
+                    df_pred = excel_prediction_meat(input_data, df_pred)
+                elif option == "Fish":
+                    df_pred = excel_prediction_fish(input_data, df_pred)
+                elif option == "Sweet":
+                    df_pred = excel_prediction_sweet(input_data, df_pred)
 
                 st.markdown("Aquí tienes tu DataFrame con la predicción")
                 st.dataframe(df_pred.drop(columns=["year_customer_entered"]))
+
 
 def prediccion_consumo():
     indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "¿Quiéres entender tus datos?", "¿Quiéres realizar una predicción única?", "¿Quiéres realizar una predicción sobre un EXCEL?","Descripción del proyecto"])

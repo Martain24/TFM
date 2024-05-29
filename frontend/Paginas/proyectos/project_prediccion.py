@@ -421,6 +421,29 @@ def prediccion_unica():
         if prediction is not None:
             st.write(f"Predicción realizada: {prediction}")
 
+
+
+def excel_prediction_fish(input_data, df_pred ):
+    if "token" not in st.session_state.keys():
+        st.warning("Tienes que iniciar sesión")
+        return df_pred
+
+    headers = {"Authorization": st.session_state.token}
+    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_fish", json=input_data, headers=headers)
+    
+    if response.status_code == 200:
+        prediction_output = response.json()["prediction_output"]
+        
+        def create_predicted_amount(row):
+            return prediction_output[f"{row.name}"]["predicted_quantity"]
+        
+        df_pred["predicted_fish"] = df_pred.apply(create_predicted_amount, axis=1)
+    else:
+        st.error(f"Error al obtener las predicciones del servidor")
+    
+    return df_pred
+
+
 def prediccion_excel():
 
     st.markdown("""
@@ -446,6 +469,10 @@ En concreto, el archivo tiene que tener una estructura como esta
     st.dataframe(df_plantilla)
 
     excel_upload = st.file_uploader("Elige un archivo Excel")
+
+    # Place select box at the top of the page
+    option = st.selectbox("Selecciona una predicción", ["Vino", "Fruit", "Meat", "Fish", "Sweet"])
+
     if st.button("Make Prediction"):
             try:
                 df_pred = pd.read_excel(excel_upload, thousands=',')
@@ -488,17 +515,17 @@ En concreto, el archivo tiene que tener una estructura como esta
                         "year_customer_entered": row["year_customer_entered"],"recency": row["recency"], "complain": row["complain"]}
                     input_data[row.name] = data
                 df_pred.apply(save_data, axis=1)
-                if "token" not in st.session_state.keys():
-                    st.warning("Tienes que iniciar sesión")
-                else:
-                    headers = {"Authorization": st.session_state.token}
-                    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fish", json=input_data, headers=headers)
-                    if response.status_code == 200:
-                        def create_predicted_amount(row):
-                            return response.json()["prediction_output"][f"{row.name}"]["predicted_quantity"]
-                        df_pred["predicted_salary"] = df_pred.apply(create_predicted_amount, axis=1)
-                    else:
-                        st.error(f"Error al obtener las predicciones del servidor")
+
+                if option == "Vino":
+                    df_pred = make_prediction_vino(input_data)
+                elif option == "Fruit":
+                    prediction = make_prediction_fruit(input_data)
+                elif option == "Meat":
+                    prediction = make_prediction_meat(input_data)
+                elif option == "Fish":
+                    df_pred = excel_prediction_fish(input_data, df_pred)
+                elif option == "Sweet":
+                    prediction = make_prediction_sweet(input_data)
 
                 st.markdown("Aquí tienes tu DataFrame con la predicción")
                 st.dataframe(df_pred.drop(columns=["year_customer_entered"]))
