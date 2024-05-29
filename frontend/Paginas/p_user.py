@@ -83,6 +83,7 @@ def user():
             for date,id in zip(dates, ids):
                 df_pred = dfs_pred[f"{date}_{id}"].set_index("Fecha")
                 fecha, hora = date.split("T")[0], date.split("T")[1]
+                st.markdown("---")
                 st.markdown(f"##### Predicción del {fecha} a las {hora}")
                 st.dataframe(df_pred)
                 if st.button("Borrar predicción", key=f"{date}_{id}_borrar_pred", type="primary"):
