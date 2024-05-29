@@ -864,7 +864,7 @@ def make_prediction_vino(input_data):
             st.warning("Tienes que iniciar sesión")
     else:
             headers = {"Authorization": st.session_state.token}
-            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_vino", json=input_data, headers=headers)
+            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_wines", json=input_data, headers=headers)
             # Obtener el valor del JSON y convertirlo a un número de punto flotante
             predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
 
@@ -923,7 +923,7 @@ def make_prediction_fruit(input_data):
             st.warning("Tienes que iniciar sesión")
     else:
             headers = {"Authorization": st.session_state.token}
-            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fruit", json=input_data, headers=headers)
+            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fruits", json=input_data, headers=headers)
             # Obtener el valor del JSON y convertirlo a un número de punto flotante
             predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
 
@@ -1033,7 +1033,7 @@ def excel_prediction_vino(input_data, df_pred ):
         return df_pred
 
     headers = {"Authorization": st.session_state.token}
-    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_vino", json=input_data, headers=headers)
+    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_wines", json=input_data, headers=headers)
     
     if response.status_code == 200:
         prediction_output = response.json()["prediction_output"]
@@ -1093,7 +1093,7 @@ def excel_prediction_fruit(input_data, df_pred ):
         return df_pred
 
     headers = {"Authorization": st.session_state.token}
-    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_fruit", json=input_data, headers=headers)
+    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_fruits", json=input_data, headers=headers)
     
     if response.status_code == 200:
         prediction_output = response.json()["prediction_output"]
