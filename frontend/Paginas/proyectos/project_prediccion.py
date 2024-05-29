@@ -548,26 +548,30 @@ En concreto, el archivo tiene que tener una estructura como esta
     # Mostrar el DataFrame de ejemplo
     st.dataframe(df_plantilla)
 
+
     excel_upload = st.file_uploader("Elige un archivo Excel")
+
 
     # Definir las opciones disponibles
     opciones = ["Vino", "Fruit", "Meat", "Fish", "Sweet"]
 
 # Crear un multiselect para seleccionar varias opciones
-    selecciones = st.multiselect("Selecciona una o más predicciones", opciones)
+    selecciones = st.selectbox("Selecciona una o más predicciones", opciones)
 
     if st.button("Make Prediction"):
             try:
                 df_pred = pd.read_excel(excel_upload, thousands=',')
                 if "Unnamed: 0" in df_pred.columns:
                     df_pred = df_pred.drop("Unnamed: 0", axis="columns")
-                st.dataframe(df_pred)
+                st.markdown("Aquí puedes ver tu dataframe:")
+                st.dataframe(df_pred.head())
 
             except ValueError:
                 df_pred = pd.read_csv(excel_upload)
                 if "Unnamed: 0" in df_pred.columns:
                     df_pred = df_pred.drop("Unnamed: 0", axis="columns")
-                st.dataframe(df_pred)
+                st.markdown("Aquí puedes ver tu dataframe:")
+                st.dataframe(df_pred.head())
             except:
                 st.warning("Archivo no válido")
 
@@ -612,11 +616,71 @@ En concreto, el archivo tiene que tener una estructura como esta
                 st.markdown("Aquí tienes tu DataFrame con la predicción")
                 st.dataframe(df_pred.drop(columns=["year_customer_entered"]))
 
+
+def prediccion_cantidad():
+    if "input_data_cantidad" not in st.session_state:
+        st.session_state.input_data_cantidad = []
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        age = st.number_input("Edad del individuo.", min_value=20, max_value=80)
+        education = st.selectbox("Education", options=["Graduation", "PhD", "Master", "2n Cycle", "Basic"])
+        marital_status = st.selectbox("Marital Status", options=["Single", "Together", "Married", "Widow", "Divorced"])
+    
+    with col2:
+        income = st.number_input(label="Income", min_value=5000)
+        kidhome = st.number_input(label="kidhome", min_value=0)
+        teenhome = st.number_input(label="Teenhome", min_value=0)
+    
+    with col3:
+        recency = st.number_input(label="Recency", min_value=1, max_value=200)
+        year_customer_entered = st.number_input(label="Year customer entered", min_value=2010, max_value=2020)
+        complain = st.selectbox(label="Complain", options=["0", "1"])
+    
+    if st.button(label="Save info customer"):
+        row = {
+            "age": age, "education": education, "marital_status": marital_status,
+            "income": income, "kidhome": kidhome, "teenhome": teenhome, 
+            "year_customer_entered": str(year_customer_entered), "recency": recency,
+            "complain": int(complain)
+        }
+        st.session_state.input_data_cantidad.append(row)
+    
+    if len(st.session_state.input_data_cantidad) != 0:
+        st.dataframe(pd.DataFrame(st.session_state.input_data_cantidad))
+    
+    if st.button(label="Delete DataFrame", type="primary"):
+        st.session_state.input_data_cantidad = []
+        st.rerun()
+    
+    model_pred = st.selectbox("Escoge el modelo", options=["fish", "meat", "sweet", "wines", "fruits"])
+    
+    if st.button("Hacer predicción"):
+        if "token" not in st.session_state.keys():
+            st.warning("Tienes que iniciar sesión")
+        else:
+            headers = {"Authorization": st.session_state.token}
+            dict_input_data = {index: row for index, row in enumerate(st.session_state.input_data_cantidad)}
+            response = requests.post(f"{URL_BACKEND}predictions/best_model_{model_pred}", headers=headers, json=dict_input_data)
+
+            if response.status_code == 401:
+                st.warning("La sesión ha caducado")
+            else:
+                predictions = response.json()
+                predicted_quantities = [pred[f"predicted_quantity"] for pred in predictions["prediction_output"].values()]
+                df = pd.DataFrame(st.session_state.input_data_cantidad)
+                alimento = (model_pred.split("_")[-1:][0])
+                df[f"Predicted_{alimento}"] = predicted_quantities
+                st.dataframe(df)
+
+
 def prediccion():
-    indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "Predicción única", "Predicción Excel"])
+    indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "Predicción única", "Predicción Excel", "Predicción cantidad"])
     if indice=="Exploratory Data Analysis":
         run_eda()
     elif indice == "Predicción única":
         prediccion_unica()
     elif indice == "Predicción Excel":
         prediccion_excel()
+    elif indice == "Predicción cantidad":
+        prediccion_cantidad()
