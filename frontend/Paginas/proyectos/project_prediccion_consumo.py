@@ -1210,7 +1210,7 @@ En concreto, el archivo tiene que tener una estructura como esta
                 df_pred.apply(save_data, axis=1)
 
                 if option == "Vino":
-                    df_pred = excel_prediction_fish(input_data, df_pred)
+                    df_pred = excel_prediction_vino(input_data, df_pred)
                 elif option == "Fruit":
                     df_pred = excel_prediction_fruit(input_data, df_pred)
                 elif option == "Meat":
