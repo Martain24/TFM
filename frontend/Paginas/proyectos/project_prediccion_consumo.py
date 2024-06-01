@@ -14,6 +14,9 @@ from openpyxl.drawing.image import Image
 def descripcion_del_proyecto():
 
     st.markdown("""
+                
+    <div style="text-align: justify;">
+
     # Predicción del Consumo en Supermercados
 
     Un aspecto crucial para los supermercados es anticiparse al consumo de sus clientes. Si, en base a una serie de características personales de los clientes, los propietarios pudieran aproximarse a la demanda de manera más precisa, podrían implementar estrategias que aumenten los beneficios y fidelicen a los clientes.
@@ -41,7 +44,8 @@ def descripcion_del_proyecto():
     ## Beneficios Esperados
     - **Aumento de Beneficios**: Mejorar la precisión en la predicción de la demanda puede llevar a una gestión más eficiente del inventario, reduciendo costos de almacenamiento y desperdicio.
     - **Fidelización de Clientes**: Anticiparse a las necesidades de los clientes y ofrecer productos en el momento adecuado puede aumentar la satisfacción y lealtad del cliente.
-    """)
+    </div>
+    """, unsafe_allow_html=True)
 
 def exploratory_data_analysis():
     st.markdown("""

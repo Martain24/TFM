@@ -1,6 +1,3 @@
-# Así sería si queremos poner el authorization en los docs...
-
-
 # Importando los módulos necesarios
 from .. import models, schemas, database, utils
 from fastapi import APIRouter, Depends, status, HTTPException
