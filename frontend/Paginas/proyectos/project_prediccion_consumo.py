@@ -57,7 +57,7 @@ Para ello necesitamos sumergirnos en un proceso conocido como análisis explorat
 Aquí, presentamos las primeras 5 filas de nuestro DataFrame, un paso inicial en la comprensión de su estructura y contenido.
 </div>
 """, unsafe_allow_html=True)
-    df = pd.read_csv("../preprocessing_modelos/marketing_campaign_final.csv")
+    df = pd.read_csv("marketing_campaign_final.csv")
     st.dataframe(df.head())
     st.markdown("""
 <div style="text-align: justify;">
