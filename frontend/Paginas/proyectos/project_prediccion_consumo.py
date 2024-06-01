@@ -888,7 +888,7 @@ def run_eda():
         st.warning("Por favor, sube un archivo CSV para continuar.")
 
 URL_BACKEND = "http://127.0.0.1:8000/"
-
+URL_BACKEND = "https://tfm-z7o5.onrender.com/"
 def make_prediction_vino(input_data):
     # Check if the request was successful
     if "token" not in st.session_state.keys():

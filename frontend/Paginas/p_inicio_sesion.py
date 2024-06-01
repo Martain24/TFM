@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 
 URL_BACKEND = "http://127.0.0.1:8000/"
+URL_BACKEND = "https://tfm-z7o5.onrender.com/"
 
 def inicio_sesion():
     st.markdown("""
