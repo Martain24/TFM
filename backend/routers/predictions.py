@@ -18,7 +18,7 @@ def obtain_prediction(filename_of_model: str, input_data:dict, current_user=Depe
     user_id = current_user.id
     ml_model = db.query(models.MlModels).filter(models.MlModels.filename_of_model == filename_of_model).first()
     if ml_model == None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="There is not such model inside the database")
     input_data_preprocesada, predictions = prediction_service.run_prediction(filename_of_model=filename_of_model, input_data=input_data)
     prediction_output = {

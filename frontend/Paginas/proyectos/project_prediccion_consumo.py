@@ -1044,7 +1044,7 @@ def excel_prediction_fish(input_data, df_pred ):
         return df_pred
 
     headers = {"Authorization": st.session_state.token}
-    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_fish", json=input_data, headers=headers)
+    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fish", json=input_data, headers=headers)
     
     if response.status_code == 200:
         prediction_output = response.json()["prediction_output"]
@@ -1064,7 +1064,7 @@ def excel_prediction_vino(input_data, df_pred ):
         return df_pred
 
     headers = {"Authorization": st.session_state.token}
-    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_wines", json=input_data, headers=headers)
+    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_wines", json=input_data, headers=headers)
     
     if response.status_code == 200:
         prediction_output = response.json()["prediction_output"]
@@ -1084,7 +1084,7 @@ def excel_prediction_meat(input_data, df_pred ):
         return df_pred
 
     headers = {"Authorization": st.session_state.token}
-    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_meat", json=input_data, headers=headers)
+    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_meat", json=input_data, headers=headers)
     
     if response.status_code == 200:
         prediction_output = response.json()["prediction_output"]
@@ -1104,7 +1104,7 @@ def excel_prediction_sweet(input_data, df_pred ):
         return df_pred
 
     headers = {"Authorization": st.session_state.token}
-    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_sweet", json=input_data, headers=headers)
+    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_sweet", json=input_data, headers=headers)
     
     if response.status_code == 200:
         prediction_output = response.json()["prediction_output"]
@@ -1124,7 +1124,7 @@ def excel_prediction_fruit(input_data, df_pred ):
         return df_pred
 
     headers = {"Authorization": st.session_state.token}
-    response = requests.post(url=f"{URL_BACKEND}/predictions/best_model_fruits", json=input_data, headers=headers)
+    response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fruits", json=input_data, headers=headers)
     
     if response.status_code == 200:
         prediction_output = response.json()["prediction_output"]
@@ -1174,14 +1174,14 @@ En concreto, el archivo tiene que tener una estructura como esta
                 if "Unnamed: 0" in df_pred.columns:
                     df_pred = df_pred.drop("Unnamed: 0", axis="columns")
                 st.markdown("Aquí puedes ver los primeros elementos de tu dataframe:")
-                st.dataframe(df_pred.head())
+                st.dataframe(df_pred)
 
             except ValueError:
                 df_pred = pd.read_csv(excel_upload)
                 if "Unnamed: 0" in df_pred.columns:
                     df_pred = df_pred.drop("Unnamed: 0", axis="columns")
                 st.markdown("Aquí puedes ver tu dataframe:")
-                st.dataframe(df_pred.head())
+                st.dataframe(df_pred)
             except:
                 st.warning("Archivo no válido")
 
