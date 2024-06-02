@@ -12,7 +12,7 @@ from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 
 URL_BACKEND = "http://127.0.0.1:8000/"
-URL_BACKEND = "https://tfm-z7o5.onrender.com/"
+#URL_BACKEND = "https://tfm-z7o5.onrender.com/"
 
 def descripcion_del_proyecto():
 
@@ -891,155 +891,6 @@ def run_eda():
         st.warning("Por favor, sube un archivo CSV para continuar.")
 
 
-def make_prediction_vino(input_data):
-    # Check if the request was successful
-    if "token" not in st.session_state.keys():
-            st.warning("Tienes que iniciar sesión")
-    else:
-            headers = {"Authorization": st.session_state.token}
-            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_wines", json=input_data, headers=headers)
-            # Obtener el valor del JSON y convertirlo a un número de punto flotante
-            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
-
-            # Redondear el valor a un número entero
-            rounded_prediction = round(predicted_quantity)
-
-            st.success(f"Se espera que la cantidad de vino comprada por este individuo es de : {rounded_prediction}")
-
-def make_prediction_fish(input_data):
-    # Check if the request was successful
-    if "token" not in st.session_state.keys():
-            st.warning("Tienes que iniciar sesión")
-    else:
-            headers = {"Authorization": st.session_state.token}
-            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fish", json=input_data, headers=headers)
-            # Obtener el valor del JSON y convertirlo a un número de punto flotante
-            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
-
-            # Redondear el valor a un número entero
-            rounded_prediction = round(predicted_quantity)
-
-            st.success(f"Se espera que la cantidad de pescado comprada por este individuo es de : {rounded_prediction}")
-
-def make_prediction_meat(input_data):
-    # Check if the request was successful
-    if "token" not in st.session_state.keys():
-            st.warning("Tienes que iniciar sesión")
-    else:
-            headers = {"Authorization": st.session_state.token}
-            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_meat", json=input_data, headers=headers)
-            # Obtener el valor del JSON y convertirlo a un número de punto flotante
-            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
-
-            # Redondear el valor a un número entero
-            rounded_prediction = round(predicted_quantity)
-
-            st.success(f"Se espera que la cantidad de carne comprada por este individuo es de : {rounded_prediction}")
-
-def make_prediction_sweet(input_data):
-    # Check if the request was successful
-    if "token" not in st.session_state.keys():
-            st.warning("Tienes que iniciar sesión")
-    else:
-            headers = {"Authorization": st.session_state.token}
-            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_sweet", json=input_data, headers=headers)
-            # Obtener el valor del JSON y convertirlo a un número de punto flotante
-            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
-
-            # Redondear el valor a un número entero
-            rounded_prediction = round(predicted_quantity)
-
-            st.success(f"Se espera que la cantidad de dulces comprada por este individuo es de : {rounded_prediction}")
-def make_prediction_fruit(input_data):
-    # Check if the request was successful
-    if "token" not in st.session_state.keys():
-            st.warning("Tienes que iniciar sesión")
-    else:
-            headers = {"Authorization": st.session_state.token}
-            response = requests.post(url=f"{URL_BACKEND}predictions/best_model_fruits", json=input_data, headers=headers)
-            # Obtener el valor del JSON y convertirlo a un número de punto flotante
-            predicted_quantity = float(response.json()["prediction_output"]["1"]["predicted_quantity"])
-
-            # Redondear el valor a un número entero
-            rounded_prediction = round(predicted_quantity)
-
-            st.success(f"Se espera que la cantidad de fruta comprada por este individuo es de : {rounded_prediction}")
-
-def prediccion_unica():
-    st.title("Aplicación de Predicciones")
-
-    st.header("Predicción")
-    st.write("Aquí irían los detalles de la predicción (esto es solo un placeholder).")
-
-    # Explanation of each column
-    st.subheader("Explicación de las columnas:")
-    st.write("""
-    - **Age**: La edad del individuo.
-    - **Education**: El nivel más alto de educación alcanzado por el individuo.
-    - **Marital_Status**: El estado civil del individuo.
-    - **Income**: El ingreso anual del individuo.
-    - **Kidhome**: El número de hijos que viven en casa.
-    - **Teenhome**: El número de adolescentes que viven en casa.
-    - **Year_Customer_Entered**: El año en que el cliente ingresó.
-    - **Recency**: La recencia del cliente (en días).
-    - **Complain**: Indica si el cliente ha presentado alguna queja (0 para no, 1 para sí).
-    """)
-
-
-    # Place select box at the top of the page
-    option = st.selectbox("Selecciona una predicción", ["Vino", "Fruit", "Meat", "Fish", "Sweet"])
-
-
-    # Selectors for each column
-    age = st.slider("Edad", min_value=0, max_value=100, value=30, step=1)
-    education = st.selectbox("Educación", ["PhD", "Master", "Graduation", "2n Cycle", "Basic"])
-    marital_status = st.selectbox("Estado Civil", ["Single", "Together", "Married", "Divorced", "Widow", "Alone", "Absurd"])
-    income_str = st.text_input("Ingreso Anual", "50000")
-    try:
-        income = float(income_str)
-    except ValueError:
-        st.error("Por favor, introduce un número válido para el ingreso anual.")
-    kidhome = st.number_input("Hijos en Casa", min_value=0, max_value=10, value=0)
-    teenhome = st.number_input("Adolescentes en Casa", min_value=0, max_value=10, value=0)
-    year_customer_entered = st.text_input("Año de Ingreso del Cliente", "2013")
-    recency_str = st.text_input("Recencia (en días)", "30")
-    try:
-        recency = int(recency_str)
-    except ValueError:
-        st.error("Por favor, introduce un número válido para la recencia.")
-    complain = st.radio("¿Ha Presentado Queja?", ["No", "Sí"])
-
-    # Button for making a single prediction
-    if st.button("Realizar Predicción"):
-        # Prepare input data for prediction
-        input_data = { 
-            1: {"age": age,
-            "education": education,
-            "marital_status": marital_status,
-            "income": income,
-            "kidhome": kidhome,
-            "teenhome": teenhome,
-            "year_customer_entered": year_customer_entered,
-            "recency": recency,
-            "complain": 1 if complain == "Sí" else 0}
-        }
-        
-        # Make prediction
-        if option == "Vino":
-            prediction = make_prediction_vino(input_data)
-        elif option == "Fruit":
-            prediction = make_prediction_fruit(input_data)
-        elif option == "Meat":
-            prediction = make_prediction_meat(input_data)
-        elif option == "Fish":
-            prediction = make_prediction_fish(input_data)
-        elif option == "Sweet":
-            prediction = make_prediction_sweet(input_data)
-
-  
-        if prediction is not None:
-            st.write(f"Predicción realizada: {prediction}")
-
 def excel_prediction_fish(input_data, df_pred ):
     if "token" not in st.session_state.keys():
         st.warning("Tienes que iniciar sesión")
@@ -1288,15 +1139,13 @@ def prediccion_cantidad():
 
 
 def prediccion_consumo():
-    indice = st.radio("¿Qué quieres ver aquí?", options=["Exploratory Data Analysis", "Descripción del proyecto", "¿Quiéres entender tus datos?", "¿Quiéres realizar una predicción única?", "¿Quiéres realizar una predicción sobre un EXCEL?", "¿Quiéres realizar una única predicción?"])
+    indice = st.radio("¿Qué quieres ver aquí?", options=[ "Descripción del proyecto", "Exploratory Data Analysis",  "¿Quiéres entender tus datos?", "¿Quiéres realizar una predicción sobre un EXCEL?", "¿Quiéres realizar una única predicción?"])
     if indice=="Exploratory Data Analysis":
         exploratory_data_analysis()
     elif indice == "Descripción del proyecto":
         descripcion_del_proyecto()
     elif indice == "¿Quiéres entender tus datos?":
         run_eda()
-    elif indice == "¿Quiéres realizar una predicción única?":
-        prediccion_unica()
     elif indice == "¿Quiéres realizar una predicción sobre un EXCEL?":
         prediccion_excel()
     elif indice == "¿Quiéres realizar una única predicción?":
